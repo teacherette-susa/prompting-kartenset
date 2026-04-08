@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompting spielerisch üben</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f4f6f9;
+    color: #1a1a2e;
+    min-height: 100vh;
+  }
+
+  /* ===== LAYOUT TOGGLE ===== */
+  body.tab-mode .col-layout { display: none; }
+  body.col-mode .tab-layout { display: none; }
+  body.tab-mode .tab-layout { display: block; }
+  body.col-mode .col-layout { display: block; }
+
+  /* ===== HEADER ===== */
+  header {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  header h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  header .subtitle {
+    font-size: 0.8rem;
+    opacity: 0.65;
+    margin-top: 0.15rem;
+  }
+  .layout-toggle {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.9rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+  }
+  .btn-primary   { background: #4361ee; color: #fff; }
+  .btn-primary:hover { background: #3451d1; }
+  .btn-secondary { background: #e9ecef; color: #1a1a2e; }
+  .btn-secondary:hover { background: #dee2e6; }
+  .btn-ghost     { background: transparent; color: #4361ee; border: 1.5px solid #4361ee; }
+  .btn-ghost:hover { background: #eef1fd; }
+  .btn-danger    { background: #f44336; color: #fff; }
+  .btn-danger:hover { background: #d32f2f; }
+  .btn-sm { padding: 0.3rem 0.65rem; font-size: 0.78rem; }
+  .btn-active { background: #4361ee !important; color: #fff !important; }
+
+  /* ===== INSTRUCTIONS BANNER ===== */
+  .instructions {
+    background: #eef1fd;
+    border-left: 4px solid #4361ee;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .instructions ol {
+    display: flex;
+    gap: 1.25rem;
+    list-style: none;
+    flex-wrap: wrap;
+  }
+  .instructions li {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #2c3e50;
+  }
+  .instructions .step-num {
+    background: #4361ee;
+    color: #fff;
+    border-radius: 50%;
+    width: 1.3rem;
+    height: 1.3rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ===== MAIN CONTAINER ===== */
+  .container { max-width: 1400px; margin: 0 auto; padding: 1.25rem; }
+
+  /* ===== SCHOOL SELECTOR ===== */
+  .school-bar {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+  .school-bar label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  .school-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .school-btn {
+    padding: 0.4rem 0.85rem;
+    border: 1.5px solid #dee2e6;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+    color: #495057;
+  }
+  .school-btn:hover { border-color: #4361ee; color: #4361ee; }
+  .school-btn.active { background: #4361ee; color: #fff; border-color: #4361ee; }
+
+  /* ===== SCENARIO PANEL ===== */
+  .scenario-panel {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1.25rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+  .scenario-panel .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .panel-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6c757d;
+  }
+  .scenario-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+  /* Scenario list */
+  .scenario-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+  }
+  .scenario-item {
+    padding: 0.5rem 0.75rem;
+    border: 1.5px solid #dee2e6;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+  .scenario-item:hover { border-color: #4361ee; background: #f0f3fe; }
+  .scenario-item.active { border-color: #4361ee; background: #eef1fd; font-weight: 500; }
+
+  /* Scenario display */
+  .scenario-display {
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+  }
+  .scenario-display.hidden { display: none; }
+  .scenario-badge {
+    display: inline-block;
+    background: #4361ee;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .scenario-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #1a1a2e;
+  }
+  .situation-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #4361ee;
+    margin-bottom: 0.35rem;
+  }
+  .situation-text {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: #2c3e50;
+    margin-bottom: 0.75rem;
+  }
+  .task-toggle {
+    font-size: 0.82rem;
+    color: #4361ee;
+    cursor: pointer;
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    user-select: none;
+  }
+  .task-text {
+    font-size: 0.87rem;
+    line-height: 1.6;
+    color: #495057;
+    padding: 0.6rem 0.75rem;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    margin-top: 0.25rem;
+  }
+  .task-text.hidden { display: none; }
+
+  /* ===== PROMPT EDITOR ===== */
+  .prompt-panel {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1.25rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+  .prompt-panel .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .prompt-textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 0.85rem 1rem;
+    border: 1.5px solid #dee2e6;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    resize: vertical;
+    transition: border-color 0.15s;
+    color: #1a1a2e;
+  }
+  .prompt-textarea:focus {
+    outline: none;
+    border-color: #4361ee;
+    box-shadow: 0 0 0 3px rgba(67,97,238,0.12);
+  }
+  .prompt-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .save-indicator {
+    font-size: 0.78rem;
+    color: #6c757d;
+    align-self: center;
+    margin-left: auto;
+  }
+  .save-indicator.saved { color: #2ecc71; }
+
+  /* ===== ELEMENTS CARD ===== */
+  .elements-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1.25rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+  .elements-card h2 {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #4361ee;
+    margin-bottom: 1rem;
+  }
+  .element-item {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.9rem;
+    align-items: flex-start;
+  }
+  .element-item:last-child { margin-bottom: 0; }
+  .element-num {
+    background: #eef1fd;
+    color: #4361ee;
+    border-radius: 5px;
+    width: 1.6rem;
+    height: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+  .element-body {}
+  .element-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 0.15rem;
+  }
+  .element-desc {
+    font-size: 0.78rem;
+    color: #6c757d;
+    line-height: 1.45;
+  }
+  .element-example {
+    font-size: 0.75rem;
+    color: #4361ee;
+    font-style: italic;
+    margin-top: 0.2rem;
+    line-height: 1.4;
+  }
+
+  /* ===== COLUMN LAYOUT ===== */
+  .col-layout .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 1.25rem;
+    align-items: start;
+  }
+  .col-layout .left-col { display: flex; flex-direction: column; gap: 1.25rem; }
+  .col-layout .right-col { position: sticky; top: 1rem; }
+
+  /* ===== TAB LAYOUT ===== */
+  .tab-layout { display: none; }
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 0.6rem 1.1rem;
+    border: none;
+    background: transparent;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6c757d;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+  .tab-btn:hover { color: #4361ee; }
+  .tab-btn.active { color: #4361ee; border-bottom-color: #4361ee; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: #1a1a2e;
+    color: #fff;
+    padding: 0.65rem 1.1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.2s;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ===== PLACEHOLDER STATE ===== */
+  .no-scenario {
+    text-align: center;
+    padding: 2rem;
+    color: #adb5bd;
+    font-size: 0.9rem;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .col-layout .main-grid {
+      grid-template-columns: 1fr;
+    }
+    .col-layout .right-col { position: static; }
+  }
+  @media (max-width: 600px) {
+    header { padding: 0.75rem 1rem; }
+    .container { padding: 0.75rem; }
+    .instructions { padding: 0.6rem 1rem; }
+    .instructions ol { gap: 0.75rem; }
+  }
+</style>
+</head>
+<body class="col-mode">
+
+<!-- HEADER -->
+<header>
+  <div>
+    <h1>Prompting spielerisch üben</h1>
+    <div class="subtitle">Kartenset digital · Susanne Alles</div>
+  </div>
+  <div class="layout-toggle">
+    <button class="btn btn-sm btn-active" id="btn-col" onclick="setLayout('col')">⊞ Spalten</button>
+    <button class="btn btn-sm btn-secondary" id="btn-tab" onclick="setLayout('tab')">⊟ Tabs</button>
+  </div>
+</header>
+
+<!-- INSTRUCTIONS -->
+<div class="instructions">
+  <ol>
+    <li><span class="step-num">1</span> Schulform &amp; Szenario wählen</li>
+    <li><span class="step-num">2</span> Prompt mit den 7 Elementen strukturieren</li>
+    <li><span class="step-num">3</span> Prompt testen und verbessern (Refinement)</li>
+  </ol>
+</div>
+
+<!-- MAIN CONTAINER -->
+<div class="container">
+
+  <!-- SCHOOL SELECTOR (shared) -->
+  <div class="school-bar">
+    <label>Schulform</label>
+    <div class="school-btns">
+      <button class="school-btn" onclick="selectSchool('BK')">Berufskolleg (BK)</button>
+      <button class="school-btn" onclick="selectSchool('GS')">Grundschule (GS)</button>
+      <button class="school-btn" onclick="selectSchool('SEK')">Sek I &amp; II</button>
+      <button class="school-btn" onclick="selectSchool('FS')">Förderschule</button>
+      <button class="school-btn" onclick="selectSchool('ZfsL')">ZfsL / Lehrkräfteausbildung</button>
+    </div>
+  </div>
+
+  <!-- ======= COLUMN LAYOUT ======= -->
+  <div class="col-layout">
+    <div class="main-grid">
+      <!-- LEFT COLUMN -->
+      <div class="left-col">
+
+        <!-- Scenario Panel -->
+        <div class="scenario-panel">
+          <div class="panel-header">
+            <span class="panel-title">Szenario</span>
+            <div class="scenario-actions">
+              <button class="btn btn-sm btn-ghost" onclick="randomScenario()">🎲 Zufälliges Szenario</button>
+              <button class="btn btn-sm btn-secondary" id="toggle-list-btn" onclick="toggleList()" style="display:none">📋 Szenario wählen</button>
+            </div>
+          </div>
+          <div id="col-scenario-list" class="scenario-list" style="display:none"></div>
+          <div id="col-scenario-display" class="scenario-display hidden"></div>
+          <div id="col-no-school" class="no-scenario">↑ Bitte zuerst eine Schulform auswählen</div>
+        </div>
+
+        <!-- Prompt Editor -->
+        <div class="prompt-panel">
+          <div class="panel-header">
+            <span class="panel-title">Prompt-Editor</span>
+          </div>
+          <textarea class="prompt-textarea" id="col-prompt"
+            placeholder="Formuliere hier deinen Prompt…&#10;&#10;Tipp: Nutze die 7 Elemente rechts als Leitfaden."
+            oninput="onPromptInput('col')"
+          ></textarea>
+          <div class="prompt-actions">
+            <button class="btn btn-primary" onclick="copyPrompt('col')">📋 Prompt kopieren</button>
+            <button class="btn btn-secondary" onclick="resetPrompt('col')">↺ Zurücksetzen</button>
+            <button class="btn btn-ghost" onclick="savePrompt('col')">💾 Speichern</button>
+            <span class="save-indicator" id="col-save-indicator"></span>
+          </div>
+        </div>
+
+      </div><!-- /left-col -->
+
+      <!-- RIGHT COLUMN: Elements Card -->
+      <div class="right-col">
+        <div class="elements-card" id="col-elements">
+          <!-- injected by JS -->
+        </div>
+      </div>
+    </div>
+  </div><!-- /col-layout -->
+
+  <!-- ======= TAB LAYOUT ======= -->
+  <div class="tab-layout" id="tab-layout-root">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('tab-szenario', this)">Szenario</button>
+      <button class="tab-btn" onclick="switchTab('tab-prompt', this)">Prompt-Editor</button>
+      <button class="tab-btn" onclick="switchTab('tab-elemente', this)">Prompting-Elemente</button>
+    </div>
+
+    <!-- Tab: Szenario -->
+    <div class="tab-pane active" id="tab-szenario">
+      <div class="scenario-panel">
+        <div class="panel-header">
+          <span class="panel-title">Szenario</span>
+          <div class="scenario-actions">
+            <button class="btn btn-sm btn-ghost" onclick="randomScenario()">🎲 Zufälliges Szenario</button>
+            <button class="btn btn-sm btn-secondary" id="tab-toggle-list-btn" onclick="toggleList()" style="display:none">📋 Szenario wählen</button>
+          </div>
+        </div>
+        <div id="tab-scenario-list" class="scenario-list" style="display:none"></div>
+        <div id="tab-scenario-display" class="scenario-display hidden"></div>
+        <div id="tab-no-school" class="no-scenario">↑ Bitte zuerst eine Schulform auswählen</div>
+      </div>
+    </div>
+
+    <!-- Tab: Prompt -->
+    <div class="tab-pane" id="tab-prompt">
+      <div class="prompt-panel">
+        <div class="panel-header">
+          <span class="panel-title">Prompt-Editor</span>
+        </div>
+        <textarea class="prompt-textarea" id="tab-prompt"
+          placeholder="Formuliere hier deinen Prompt…"
+          oninput="onPromptInput('tab')"
+        ></textarea>
+        <div class="prompt-actions">
+          <button class="btn btn-primary" onclick="copyPrompt('tab')">📋 Prompt kopieren</button>
+          <button class="btn btn-secondary" onclick="resetPrompt('tab')">↺ Zurücksetzen</button>
+          <button class="btn btn-ghost" onclick="savePrompt('tab')">💾 Speichern</button>
+          <span class="save-indicator" id="tab-save-indicator"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Elemente -->
+    <div class="tab-pane" id="tab-elemente">
+      <div class="elements-card" id="tab-elements">
+        <!-- injected by JS -->
+      </div>
+    </div>
+  </div><!-- /tab-layout -->
+
+</div><!-- /container -->
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================================================
+   DATA
+=================================================== */
+
+const PROMPTING_ELEMENTS = [
+  {
+    num: 1,
+    name: "Rolle / Persona",
+    desc: "Gib der KI eine Identität oder Perspektive.",
+    example: "„Antworte aus der Rolle einer Beraterin einer Schulleitung einer Grundschule in NRW.""
+  },
+  {
+    num: 2,
+    name: "Kontext",
+    desc: "Biete Hintergrundinformationen, die die KI benötigt.",
+    example: "„Ich bin Schulleitung und benötige einen Text für eine heterogene Elternschaft.""
+  },
+  {
+    num: 3,
+    name: "Aufgabe",
+    desc: "Kläre die genaue Aufgabenstellung präzise.",
+    example: "„Verfasse einen Elternbrief zum Nutzen des Einsatzes von LOGINEO NRW LMS.""
+  },
+  {
+    num: 4,
+    name: "Kriterien",
+    desc: "Benenne inhaltliche Anforderungen und Bedingungen.",
+    example: "„Gehe dabei auf die Vorteile bezüglich des Datenschutzes ein.""
+  },
+  {
+    num: 5,
+    name: "Ziel",
+    desc: "Definiere den gewünschten Effekt oder das Ergebnis.",
+    example: "„Widerstände der Lernplattform gegenüber sollen abgebaut werden.""
+  },
+  {
+    num: 6,
+    name: "Format",
+    desc: "Beschreibe Tenor, Textformat und Zielgruppe.",
+    example: "„Generiere für eine heterogene Zielgruppe mit Aufzählungspunkten.""
+  },
+  {
+    num: 7,
+    name: "Refinement",
+    desc: "Gib Rückmeldungen und verfeinere das Ergebnis schrittweise.",
+    example: "„Vereinfache den Text." / „Füge ein konkretes Beispiel ein.""
+  }
+];
+
+// Standard task for all school types
+const STANDARD_TASK = "Bestimmen Sie die sieben Prompting-Elemente und halten Sie diese fest. " +
+  "Verfassen Sie eine Prompt Chain und testen diese mit einer textgenerierenden KI. " +
+  "Verfassen Sie zum identischen Szenario einen Mega Prompt. " +
+  "Vergleichen Sie die Ergebnisse.";
+
+const scenarios = {
+
+  /* ========== BERUFSKOLLEG (30) ========== */
+  BK: [
+    {
+      id: 1, title: "Szenario 1 – Fallstudien BWL",
+      situation: "Sie unterrichten in der 11. Klasse des Beruflichen Gymnasiums Betriebswirtschaftslehre mit Rechnungswesen und möchten den Schülerinnen und Schülern Fallstudien zur Vertragsanalyse anbieten. Sie suchen Hilfe bei der Erstellung realistischer Fälle und Lösungsvorschläge.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 2, title: "Szenario 2 – Digitale Schlüsselkompetenzen",
+      situation: "Als Schulleiterin an einem großen Berufsbildungszentrum liegt Ihnen die Förderung digitaler Schlüsselkompetenzen am Herzen. Teile des Kollegiums zeigen Widerstände gegenüber Digitalisierungsprozessen und Sie konnten feststellen, dass einige sich bislang noch kein einziges Mal auf der Lernplattform eingeloggt haben. Statt zu mahnen, wollen Sie dem Kollegium motivierend den Mehrwert von Digitalität vermitteln, haben aber keine zündende Idee dazu.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 3, title: "Szenario 3 – Aktienhandel & Investment",
+      situation: "Sie sind Schüler einer 12. Klasse im beruflichen Gymnasium, Fachbereich Wirtschaft und Verwaltung, und möchten Ihr Verständnis für Aktienhandel verbessern. Die KI soll virtuelle Investmentportfolios für Sie erstellen und Einblicke in die Finanzmärkte gewähren.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 4, title: "Szenario 4 – Java Binnendifferenzierung",
+      situation: "Sie sind Lehrerin einer Klasse von IT-Fachinformatikern. Ein Großteil der Lerngruppe hat Verständnisprobleme bezüglich der Programmiersprache Java, ein Teil der Gruppe langweilt sich, weil sie deutlich mehr Vorwissen haben. Sie suchen Möglichkeiten der Binnendifferenzierung.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 5, title: "Szenario 5 – 3D-Drucker Antrag",
+      situation: "Sie sind Schulleiter an einem Berufskolleg für Gestaltung. Die Abteilungsleiterin möchte mehrere 3D-Drucker anschaffen und auch aus Ihrer Sicht ist die Notwendigkeit durch den Rahmenlehrplan der Gestaltungstechnischen Assistenten mit Schwerpunkt Grafik und Objektdesign legitimiert. Die Kassen der Kommune sind jedoch leer und Sie benötigen Unterstützung bei der Antragstellung.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 6, title: "Szenario 6 – Portfolio Mediengestaltung",
+      situation: "Als Schüler in einer Mediengestalter-Mittelstufe möchten Sie Ihr Portfolio erstellen. Die KI hilft bei der Gestaltung von Grafikprojekten und bietet kreative Ideen für Designs.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 7, title: "Szenario 7 – Werbekampagnen",
+      situation: "Sie sind Lehrerin im Fach Gestaltungstechnik in einer Klasse von Gestaltungstechnischen Assistenten (Anlage C) und möchten, dass Ihre Lerngruppe innovative Werbekampagnen entwickelt. Die KI soll kreative Ansätze und Zielgruppenanalyse-Methoden vorschlagen.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 8, title: "Szenario 8 – Schülerschaft und Anwohner",
+      situation: "Als Schulleiter eines BKs in bester Wohnlage sehen Sie sich immer wieder mit Beschwerden über Ihre Schülerschaft konfrontiert. Sie suchen nach Lösungen, die beidseitige Akzeptanz zu erhöhen.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 9, title: "Szenario 9 – Gesunde Rezepte",
+      situation: "Sie sind Schüler in der Berufsfachschule 1, Ernährung und Versorgung, und für das Fach Produktion möchten Sie gesunde Rezepte entwickeln. Sie benötigen Rezeptvorschläge und Nährwertanalysen.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 10, title: "Szenario 10 – Team-Teaching Klärung",
+      situation: "Sie unterrichten im Team-Teaching Mathematik in einer Klasse der Ausbildungsvorbereitung. Bislang haben ausschließlich Sie den Unterricht geplant und dem Kollegen zaghaft signalisiert, dass auch er verantwortlich ist. Sie sind überfragt, wie man das Thema höflich ansprechen kann und suchen Rat.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 11, title: "Szenario 11 – Mitarbeitergespräch",
+      situation: "Als Schulleiter steht Ihnen ein schwieriges Mitarbeitergespräch mit einem Kollegen bevor, der mit Ihrer Exfrau verheiratet ist, von der Sie seinetwegen verlassen wurden. Sie sehen bei ihm kaum Einsatz, befürchten aber, dass er mit Ihrer Eifersucht argumentieren wird. Sie suchen Unterstützung bei der Erstellung eines Gesprächsleitfadens.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 12, title: "Szenario 12 – Medizinische Diagnoseverfahren",
+      situation: "Als Schülerin in der Berufsfachschule 2, Gesundheit und Soziales mit dem Schwerpunkt Sport/Gesundheitsförderung möchten Sie Ihre Kenntnisse im Fach Gesundheitswissenschaften über medizinische Diagnoseverfahren erweitern und Übungsfälle und Diagnosehilfen generieren.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 13, title: "Szenario 13 – Nachhaltige Projekte",
+      situation: "Sie sind Lehrer in der Ausbildungsvorbereitung Ernährung und Versorgung und möchten, dass Ihre Klasse nachhaltige Projekte durchführt. Sie sind auf der Suche nach innovativen Projektideen zu grünen Technologien.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 14, title: "Szenario 14 – Alternative Prüfungsformate",
+      situation: "Sie sind eine progressive Schulleiterin an einem Berufskolleg und hatten mehrfach Gespräche mit Lehrkräften, die den Einsatz von KI unterbinden möchten. Sie wollen nicht restriktiv vorgehen und setzen auf alternative Prüfungsformate. Dafür möchten Sie eine Handreichung für Ihr Kollegium mit Vorschlägen zu alternativen Prüfungsformaten und Handlungsprodukten erstellen. Von Hause aus unterrichten Sie Sport und Religion und benötigen Inspiration für die Fächervielfalt Ihrer Schule.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 15, title: "Szenario 15 – Markteintritt AAL",
+      situation: "Sie sind angehender Industriekaufmann und sollen im Auftrag der Geschäftsleitung eine Markteintrittstrategie für einen sensorgesteuerten Senioren-Assistenten (Ambient-Assistant Living) entwickeln, der Geräte wie Kaffeemaschinen und Herde, aber auch weitere Alltagsgegenstände steuert.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 16, title: "Szenario 16 – Englisch Friseurhandwerk",
+      situation: "Sie unterrichten Englisch bei Auszubildenden im Friseurhandwerk und möchten Schülerinnen und Schülern unterschiedlicher Lernniveaus dabei helfen, Geschäftskorrespondenz auf Englisch zu verfassen. Dafür möchten Sie die KI nutzen, um differenzierte Musterbriefe und Sprachhilfen zu erstellen.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 17, title: "Szenario 17 – Qualitätsanalyse am BK",
+      situation: "Sie sind Schulleiterin eines Berufskollegs, an welchem sich die QA angemeldet hat. Im Kollegium herrscht ohnehin schon schlechte Stimmung. Leitbild, Medienkonzept, Didaktische Jahresplanung und vieles mehr wurden stichpunktartig erstellt, aber nie fertiggestellt. Sie benötigen Unterstützung bei der Vorbereitung.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 18, title: "Szenario 18 – Robotikprojekt",
+      situation: "Sie sind Mechatronikerin im 3. Ausbildungsjahr und möchten ein Robotikprojekt durchführen. Die KI soll Technikberatung und Programmierhilfe für Roboterkonstruktionen bieten.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 19, title: "Szenario 19 – Reihenplanung Bauzeichner",
+      situation: "Für Bauzeichner ist im dritten Ausbildungsjahr das Lernfeld 14(A), Planung eines Stahlbetonwerks, vorgesehen. Sie unterrichten das Lernfeld erstmalig und benötigen eine Reihenplanung für 60 Unterrichtsstunden.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 20, title: "Szenario 20 – Fusion zweier Berufskollegs",
+      situation: "Sie leiten ein Berufskolleg mit den Schwerpunkten Technik sowie Wirtschaft und Verwaltung. Ihnen steht eine Fusion mit einem kleineren BK für Gestaltung und Gesundheit bevor und Sie möchten, dass sowohl die Klassen als auch das Kollegium diese Veränderung konstruktiv gestalten.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 21, title: "Szenario 21 – Gästebetreuung Hotelmanagement",
+      situation: "Sie sind angehende Kauffrau im Hotelmanagement (3. Ausbildungsjahr) und möchten eine innovative Gästebetreuungsstrategie entwickeln. Sie suchen Ideen für personalisierte Gästeerlebnisse.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 22, title: "Szenario 22 – Lagerlogistik motivieren",
+      situation: "Sie unterrichten Lagerlogistik in einer wenig motivierten Klasse von Fachlageristinnen und Fachlageristen im ersten Ausbildungsjahr und suchen kreative und motivierende Möglichkeiten zur Vermittlung des Themas effizienter Lagerhaltung.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 23, title: "Szenario 23 – Hackathon mit Unternehmen",
+      situation: "Als Schulleiter möchten Sie die Zusammenarbeit mit regionalen Unternehmen stärken. Kürzlich waren Sie bei einem Hackathon und würden gerne ein solches Event zu diesem Zweck in Ihrer Schule durchführen. Sie wissen allerdings noch nicht genau, wie man das konzipiert und organisiert.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 24, title: "Szenario 24 – CAD-Design Metallbau",
+      situation: "Als angehende Metallbauerin (2. Ausbildungsjahr) möchten Sie effiziente Konstruktionslösungen entwickeln. Die KI soll Unterstützung bei CAD-Designs bieten und technisch beraten.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 25, title: "Szenario 25 – Konflikte im Religionsunterricht",
+      situation: "Sie unterrichten Religion in einer FOS 11 Technik. Immer wieder kommt es zu Konflikten aufgrund diskriminierender Äußerungen, die auch schon in Handgreiflichkeiten endeten. Sie benötigen Unterstützung bei der Bewältigung dieser Konflikte und der Prävention weiterer Vorfälle.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 26, title: "Szenario 26 – Trans & Nonbinäre Schülerschaft",
+      situation: "Sie leiten das Berufskolleg mit vielfältigen Ausbildungsgängen und einer sehr heterogenen Schülerschaft. Bei den letzten Anmeldungen gab ein beträchtlicher Anteil des Klientels an, transgender oder nonbinär zu sein. Sie möchten die Schule entsprechend sensibel und inklusiv aufstellen.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 27, title: "Szenario 27 – Elektrotechnik Stromkreis",
+      situation: "Als Schüler in der Ausbildungsvorbereitung im Bereich Elektrotechnik haben Sie Probleme, einen intelligenten Stromkreis zu bauen. Sie suchen einfache Erklärungen für Schaltungsdesigns und benötigen eine Fehlerdiagnose.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 28, title: "Szenario 28 – Antrag Freizeitpark",
+      situation: "Sie sind Klassenlehrer einer BFS-Klasse und möchten mit ihrer Klasse in einen Freizeitpark fahren. Die Schulleitung hat Ihren Antrag abgelehnt. Sie benötigen Anregungen zur Neuformulierung Ihres Antrages mit schlüssiger Begründung.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 29, title: "Szenario 29 – Raumkonzept agile Methoden",
+      situation: "Sie sind Schulleiterin an einem BK und möchten ein Raumkonzept in Ihrer Schule entwickeln, das Agile Methoden unterstützt. Dafür benötigen Sie Ideen zur Raumgestaltung mit Berücksichtigung des Brandschutzes und Vorschläge für die Ausstattung.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 30, title: "Szenario 30 – Eventkonzepte",
+      situation: "Sie sind angehender Veranstaltungskaufmann (1. Ausbildungsjahr) und sollen im Fach Eventmanagement Veranstaltungskonzepte entwerfen. Die KI bietet Ideen für Eventthemen und Organisationshilfe.",
+      task: STANDARD_TASK
+    }
+  ],
+
+  /* ========== GRUNDSCHULE (9) ========== */
+  GS: [
+    {
+      id: 1, title: "Szenario 1 – Schreibaufgaben Deutsch",
+      situation: "Sie unterrichten Deutsch in der 2. Klasse und möchten den Lernenden helfen, das Schreiben von Geschichten unter Berücksichtigung von Schreibkriterien anzubahnen. Die KI unterstützt Sie bei der Entwicklung von kreativen Schreibaufgaben und liefert Vorschläge für Merkmale eines guten Textaufbaus.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 2, title: "Szenario 2 – Tablet-Konzept",
+      situation: "Sie möchten als Schulleitung ein Konzept für den Einsatz von Tablets im Unterricht entwickeln. Hierfür benötigen Sie Ideen zur Umsetzung des Konzepts in verschiedenen Fächern und Klassenstufen, Anknüpfungspunkte an den Medienkompetenzrahmen und Vorschläge zur Auswahl DSGVO-konformer Apps.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 3, title: "Szenario 3 – Mathe Textaufgaben",
+      situation: "Du bist in der 3. Klasse und hast Schwierigkeiten beim Verständnis von Textaufgaben in Mathematik. Du bittest die KI, Dir Erklärungen, Übungen und Lernspiele zum Thema zu erstellen.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 4, title: "Szenario 4 – Pflanzenwachstum",
+      situation: "Um die Arbeit einer Schülerin in der 4. Klasse bei dem Thema Pflanzenwachstum im Sachunterricht zu unterstützen, nehmen Sie eine KI zu Hilfe. Dazu recherchieren Sie Informationen und Themen und erstellen eine Auflistung der verschiedenen Stadien des Wachstums einer Pflanze.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 5, title: "Szenario 5 – Elternbrief Verkehrschaos",
+      situation: "Sie sind Schulleiterin einer Grundschule in der Innenstadt. Vor Schulbeginn herrscht vor Ihrer Schule Verkehrschaos. Eltern blockieren den Busparkplatz und es gab bereits Handgreiflichkeiten zwischen einem Anwohner und einer Mutter, die die Einfahrt blockiert hatte. Sie möchten mithilfe einer Text-KI eine Einladung zu einem Infoabend zu diesem brisanten Thema formulieren.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 6, title: "Szenario 6 – Theaterstück",
+      situation: "Du bist in der 4. Klasse und möchtest ein Theaterstück aufführen. Du weißt gar nicht, wie ein Theaterstück aufgebaut ist und brauchst eine einfache Erklärung von der KI. Außerdem benötigst Du Vorschläge für das Stück und die Rollen.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 7, title: "Szenario 7 – Notenlehre",
+      situation: "Sie sind Musiklehrer an einer Grundschule und möchten zu dem Thema „Notenlehre" eine Unterrichtsreihe erstellen. Die KI hilft Ihnen dabei, das Lesen und Schreiben grafischer Notationen und einfacher traditioneller Notationen als Spielhilfe zielgerichtet zu entwickeln.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 8, title: "Szenario 8 – Einschulungsbrief",
+      situation: "Sie schreiben als Schulleitung eine Einladung zur Einschulung an die Erziehungsberechtigten. Die KI unterstützt Sie bei der Verfassung von klaren, verständlichen Briefen und E-Mails in einfacher Sprache für das Thema „Einschulungsverfahren".",
+      task: STANDARD_TASK
+    },
+    {
+      id: 9, title: "Szenario 9 – Freundschaftskonflikt",
+      situation: "Du bist in der 3. Klasse. Deine beste Freundin hat Deinen Lieblingsstift geklaut und Du hast gesehen, dass er in ihrem Mäppchen liegt, aber sie sagt, dass sie ihn nicht hat. Sie ist Dir sehr wichtig und Du möchtest nicht auf die Freundschaft verzichten, aber auch Deinen Stift zurückbekommen. Du hast Dir überlegt, was Du ihr sagen möchtest – die KI soll Dir helfen, Deine Gedanken in Worte zu fassen.",
+      task: STANDARD_TASK
+    }
+  ],
+
+  /* ========== SEK I & II (9) ========== */
+  SEK: [
+    {
+      id: 1, title: "Szenario 1 – Innovative Prüfungsformate Geschichte",
+      situation: "Sie sind Geschichtslehrer an einer Realschule und möchten innovative Prüfungsformate für das Thema „Zeitalter der Industrialisierung" entwickeln. Die KI listet neue, kreative Prüfungsmethoden auf, um das historische Verständnis Ihrer Schüler zu fördern.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 2, title: "Szenario 2 – Alternative Prüfungsformate Realschule",
+      situation: "Sie sind eine progressive Schulleiterin an einer Realschule und hatten mehrfach Gespräche mit Lehrkräften, die den Einsatz von KI unterbinden möchten. Sie wollen nicht restriktiv vorgehen und setzen auf alternative Prüfungsformate. Dafür möchten Sie eine Handreichung für Ihr Kollegium erstellen.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 3, title: "Szenario 3 – Biologie Genetik Diagnose",
+      situation: "Sie sind Schülerin in der Klasse 12 und haben Schwierigkeiten im Fach Biologie. Sie haben ihre Lösungen der letzten Klassenarbeit zum Thema Genetik in den Chat eingegeben und die KI aufgefordert, Ihre Schwächen zu diagnostizieren und gezielt Übungsmaterial und einfache Erklärungen zu generieren.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 4, title: "Szenario 4 – Chemie Binnendifferenzierung",
+      situation: "Sie unterrichten Chemie an einer Hauptschule und möchten binnendifferenzierte Materialien für das Thema „Elemente und ihre Ordnung" erstellen. Die KI soll Ihnen helfen, Übungen und Erklärungen anzupassen, um den unterschiedlichen Leistungsstufen in Ihrer Klasse gerecht zu werden.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 5, title: "Szenario 5 – Elternbriefe Gesamtschule",
+      situation: "Sie sind Schulleiter an einer Gesamtschule und suchen nach Wegen, um die Kommunikation mit den Eltern zu verbessern. Die KI unterstützt Sie bei der Verfassung von klaren, verständlichen Elternbriefen und E-Mails in einfacher Sprache, insbesondere für das Thema „Elternabend".",
+      task: STANDARD_TASK
+    },
+    {
+      id: 6, title: "Szenario 6 – Periodensystem Differenzierung",
+      situation: "Sie unterrichten Chemie an einer Hauptschule und möchten binnendifferenzierte Materialien für das Thema „Periodensystem der Elemente" erstellen. Die KI hilft Ihnen, Übungen und Erklärungen anzupassen, um den unterschiedlichen Leistungsstufen der Lerngruppe gerecht zu werden.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 7, title: "Szenario 7 – Musikkomposition LMS-Kurs",
+      situation: "Sie unterrichten Musik an einer Gesamtschule und möchten kreative LMS-Kurse für das Thema „Musikkomposition" erstellen. Die KI unterstützt Sie bei der Gestaltung interaktiver musikalischer Lernmodule und bietet Ideen für innovative Unterrichtsmethoden.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 8, title: "Szenario 8 – Digitalität im Kollegium",
+      situation: "Als Schulleiterin an einer Realschule liegt Ihnen Digitalität sehr am Herzen. Teile des Kollegiums zeigen Widerstände gegenüber Digitalisierungsprozessen und Sie konnten feststellen, dass einige sich bislang noch kein einziges Mal auf der Lernplattform eingeloggt haben. Statt zu mahnen, wollen Sie dem Kollegium motivierend den Mehrwert von Digitalität vermitteln.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 9, title: "Szenario 9 – Demokratie & Bürgerrechte",
+      situation: "Du bist Schülerin an einer 7. Klasse an einer Hauptschule und hast in Politik gerade das Thema „Demokratie und Bürgerrechte". Du findest das Thema doof und fändest es viel besser, wenn es einen „Bestimmer" gäbe, weil man dann nicht immer so viel diskutieren müsste. Deine Lehrerin hat gesagt, Du solltest mal überlegen, was passieren könnte, wenn das so wäre.",
+      task: STANDARD_TASK
+    }
+  ],
+
+  /* ========== FÖRDERSCHULE (9) ========== */
+  FS: [
+    {
+      id: 1, title: "Szenario 1 – Mathe Textaufgaben inklusiv",
+      situation: "Sie sind Lehrkraft einer Klasse und möchten Textaufgaben für den Mathematikunterricht erstellen. In Ihrer Klasse befinden sich zwei Kinder mit umfangreicher Sprachentwicklungsstörung im Bereich Sprachverständnis sowie zwei Kinder mit einer Lernbeeinträchtigung. Für diese Gruppe versuchen Sie eine inhaltlich klare und reduzierte sprachliche Version der regulären Aufgaben zu erstellen.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 2, title: "Szenario 2 – Schulträger Ausstattung",
+      situation: "Sie sind Schulleiterin an einer Förderschule mit zwei Standorten. Bei der Kommunikation mit dem Schulträger über die Ausstattung bleiben viele Antworten offen. Nur manche Klassen haben WLAN, es fehlen teilweise Dienstgeräte, ebenso Koffer, um die Tablets der Klassen sicher zu verstauen. Anfragen zu Planungsperspektiven werden ignoriert. Sie bereiten sich auf ein Gespräch vor.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 3, title: "Szenario 3 – Geschichte zu Bildern",
+      situation: "Du bist in der 8. Klasse einer Förderschule und es fällt Dir schwer, eigene Texte zu verfassen. Heute darfst Du eine Text-KI als Werkzeug benutzen. Du hast Bilder für eine Geschichte gestaltet und nun möchtest du mit der KI eine passende Geschichte zu Deinen Bildern schreiben lassen.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 4, title: "Szenario 4 – Einfache Sprache Klassenarbeit",
+      situation: "Sie sind Lehrkraft im Gemeinsamen Lernen einer Gesamtschule. Sie möchten die Aufgabenstellung ihrer Klassenarbeiten von einer Text-KI in einfacher und nur der notwendigsten Sprache erstellen lassen, um sie einigen Ihrer Schüler:innen anbieten zu können.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 5, title: "Szenario 5 – Zeitungsartikel Lärm",
+      situation: "Sie sind Schulleiterin an einer Förderschule. Die Anwohner beschweren sich über die Lautstärke durch die Lernenden und die gefährliche Verkehrssituation am Morgen. Sie möchten mit textgenerierender KI einen Artikel für die regionale Zeitung verfassen, indem Sie auditive Beeinträchtigungen anreißen und um besondere Vorsicht bitten.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 6, title: "Szenario 6 – Bewerbung überarbeiten",
+      situation: "In Klasse 9 habt ihr Bewerbungen geschrieben. Du erhältst deine Arbeit mit einigen Anmerkungen zu Grammatik und Ausdruck zurück und sollst sie überarbeiten. Es ist erlaubt, eine Text-KI zur Überarbeitung zu nutzen. Da die Lehrerin Dir wiederholt die gleichen Fehler angestrichen hat, möchtest Du dazu von der KI Übungen erstellen lassen.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 7, title: "Szenario 7 – Innerer Monolog Tschick",
+      situation: "Sie lesen mit Ihrer 7. Klasse das Buch „Tschick". Eine Aufgabe ist es, einen inneren Monolog zu einer der Figuren zu schreiben. Sie möchten jenen, die zum eigenständigen Verfassen längerer Texte nicht in der Lage sind, eine KI zur Verfügung stellen. Hierzu wollen Sie mit einer Text-KI eine kurze, einfache, klare und prägnante Aufgabenstellung formulieren.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 8, title: "Szenario 8 – Infoabend Verkehr SGE",
+      situation: "Sie sind Schulleiterin einer Schule für Geistige Entwicklung. Vor Schulbeginn herrscht vor Ihrer Schule Verkehrschaos. Die Busparkplätze reichen nicht für alle Schulbusse aus, sodass im Wohngebiet geparkt werden muss. Zudem parken Anwohner auf der Fläche sowie auf dem Lehrkräfteparkplatz. Sie laden zu einem Infoabend ein und suchen über eine Text-KI einfache und konstruktive Formulierungen.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 9, title: "Szenario 9 – Vom Korn zum Brot",
+      situation: "Du bist Schülerin einer 6. Klasse an einer Förderschule und sollst eine kurze Präsentation über das Thema „Vom Korn zum Brot" halten. Du hast eine Erklärung verfasst, bist Dir aber nicht so sicher, ob Du das Thema richtig verstanden hast und ob Deine Formulierungen gut verständlich sind. Die KI soll die Rolle einer Mitschülerin einnehmen und Rückfragen stellen.",
+      task: STANDARD_TASK
+    }
+  ],
+
+  /* ========== ZfsL / Lehrkräfteausbildung (10) ========== */
+  ZfsL: [
+    {
+      id: 1, title: "Szenario 1 – Differenzierte Aufgaben",
+      situation: "Für eine Unterrichtsstunde im Fach X zum Thema Y für eine 8. Klasse, in der Jugendliche mit unterschiedlichen Lernniveaus unterrichtet werden, werden differenzierte Aufgaben auf drei Kompetenzniveaus benötigt. Die Einschätzung des Leistungsstandes soll auf der Basis von Kompetenzerwartungen und Bildungsstandards erfolgen.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 2, title: "Szenario 2 – Fallbeschreibungen Heterogenität",
+      situation: "Für den Einstieg in Themen wie Heterogenität in der Lerngruppe oder Implementierung inklusiver Bildungspraktiken werden Fallbeschreibungen zur Veranschaulichung benötigt. In den Fallbeschreibungen sollen Kinder und Jugendliche mit besonderen Begabungen oder Beeinträchtigungen und ihren speziellen Bedürfnissen charakterisiert werden.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 3, title: "Szenario 3 – Kollegiale Fallberatung",
+      situation: "Als Kernseminarleiterin haben Sie den Auftrag, Ihre Seminargruppe mit der kollegialen Fallberatung vertraut zu machen. Die LAA sollen nach einer Einführung diese Beratungsmethode eigenständig nutzen. Ihnen sind verschiedene Varianten bekannt, bei denen die Beteiligten verschiedene Rollen einnehmen.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 4, title: "Szenario 4 – Handlungsfeld Beraten",
+      situation: "Sie sind Seminarleiterin in einem ZfsL und wollen, dass Ihre SAB sich über Kompetenzen im Handlungsfeld „Beraten" in der digitalisierten Welt auf einer Dienstbesprechung austauschen, um dieses Handlungsfeld in der Lehrkräfteausbildung zu stärken.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 5, title: "Szenario 5 – Unterrichtseinheiten entwickeln",
+      situation: "Sie haben den Anspruch an sich, ansprechende und pädagogisch wertvolle Unterrichtseinheiten zu entwickeln. Gerne würden Sie auf vielfältige Erfahrungen und kreative Ideen zurückgreifen. Mit einem KI-System können Sie verschiedene Ansätze zur Behandlung eines Themas diskutieren und z.B. Vorschläge für methodische Variationen erhalten.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 6, title: "Szenario 6 – Material erstellen",
+      situation: "Sie wollen passendes Material für Ihre Lerngruppe und Unterrichtssituation erstellen. Nutzen Sie ein KI-System, um sich Übungsaufgaben, Quizfragen, Projektideen oder ganze Arbeitsblätter generieren zu lassen. Dabei können Sie nicht nur einen Themenbereich, sondern auch ausgewählte Texte als Grundlage angeben.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 7, title: "Szenario 7 – Feedback von Lerngruppe",
+      situation: "Sie hätten gerne von Ihrer Lerngruppe Feedback und Fragen zur letzten Unterrichtsstunde. Sie möchten zur Klarheit der Erklärungen, zur Nützlichkeit der verwendeten Materialien und zur allgemeinen Zufriedenheit mit der Stunde passende Fragen stellen. Ideal wäre es, wenn ein KI-System Ihnen passende Fragen entwirft.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 8, title: "Szenario 8 – Agile Methoden im Unterricht",
+      situation: "Sie sind LAA im Seminar HRSGe oder GyGe. Sie haben den Auftrag, agile Methoden im Unterricht einer 10. Klasse zu erproben und Ihre Erfahrungen im Fachseminar vorzustellen. Benutzen Sie die KI, um Ihre Lerngruppe an agile Methoden heranzuführen.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 9, title: "Szenario 9 – Unterrichtsentwurf Klafki",
+      situation: "Sie haben bereits einen Unterrichtsentwurf zu einer konkreten Stunde erstellt und die didaktische Analyse anhand der fünf Kernfragen Klafkis erstellt. Sie möchten Ihre Planung weiter verbessern, indem Sie Ihren Text von einem KI-System analysieren lassen. Dabei interessiert Sie, ob Sie die Kernfragen vollständig beantwortet haben.",
+      task: STANDARD_TASK
+    },
+    {
+      id: 10, title: "Szenario 10 – Elterngespräch Kriterien",
+      situation: "Sie sind SAB und möchten Ihren LAA Kriterien für ein gelingendes Elterngespräch zu fiktiven Fällen vermitteln. Dabei soll ein KI-System als Ideengeber für den Input zu den Kriterien guter und erfolgreicher Elterngespräche dienen und dazu eine Präsentation erstellen.",
+      task: STANDARD_TASK
+    }
+  ]
+};
+
+/* ===================================================
+   STATE
+=================================================== */
+let currentSchool = null;
+let currentScenario = null;
+let listVisible = false;
+let currentLayout = 'col';
+
+/* ===================================================
+   INIT
+=================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  renderElements('col-elements');
+  renderElements('tab-elements');
+  loadSaved();
+});
+
+/* ===================================================
+   ELEMENTS RENDERING
+=================================================== */
+function renderElements(containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = `<h2>Prompting – 7 Elemente</h2>` +
+    PROMPTING_ELEMENTS.map(e => `
+      <div class="element-item">
+        <div class="element-num">${e.num}</div>
+        <div class="element-body">
+          <div class="element-name">${e.name}</div>
+          <div class="element-desc">${e.desc}</div>
+          <div class="element-example">${e.example}</div>
+        </div>
+      </div>
+    `).join('');
+}
+
+/* ===================================================
+   SCHOOL SELECTION
+=================================================== */
+function selectSchool(school) {
+  currentSchool = school;
+  currentScenario = null;
+  listVisible = false;
+
+  // Update button states
+  document.querySelectorAll('.school-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.school-btn').forEach(b => {
+    if (b.textContent.trim().startsWith(school) ||
+        (school === 'SEK' && b.textContent.includes('Sek')) ||
+        (school === 'FS' && b.textContent.includes('Förderschule')) ||
+        (school === 'ZfsL' && b.textContent.includes('ZfsL'))) {
+      b.classList.add('active');
+    }
+  });
+
+  // Show toggle list button
+  ['col-toggle-list-btn', 'tab-toggle-list-btn'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.style.display = 'inline-flex';
+  });
+
+  // Reset scenario display
+  setDisplay('col-no-school', false);
+  setDisplay('tab-no-school', false);
+  setDisplay('col-scenario-display', true, true); // hidden
+  setDisplay('tab-scenario-display', true, true);
+  setDisplay('col-scenario-list', true, false);   // hidden
+  setDisplay('tab-scenario-list', true, false);
+}
+
+/* ===================================================
+   SCENARIO SELECTION
+=================================================== */
+function randomScenario() {
+  if (!currentSchool) { showToast('Bitte zuerst eine Schulform wählen.'); return; }
+  const list = scenarios[currentSchool];
+  const idx = Math.floor(Math.random() * list.length);
+  showScenario(list[idx]);
+  // Hide list
+  listVisible = false;
+  hideScenarioList();
+}
+
+function toggleList() {
+  if (!currentSchool) return;
+  listVisible = !listVisible;
+  if (listVisible) {
+    renderScenarioList();
+  } else {
+    hideScenarioList();
+  }
+}
+
+function renderScenarioList() {
+  const list = scenarios[currentSchool];
+  const html = list.map(s => `
+    <div class="scenario-item ${currentScenario && currentScenario.id === s.id ? 'active' : ''}"
+         onclick="showScenario(${JSON.stringify(s).replace(/"/g, '&quot;')})">
+      ${s.title}
+    </div>
+  `).join('');
+  setInnerHTML('col-scenario-list', html);
+  setInnerHTML('tab-scenario-list', html);
+  document.getElementById('col-scenario-list').style.display = 'grid';
+  document.getElementById('tab-scenario-list').style.display = 'grid';
+  const btn1 = document.getElementById('col-toggle-list-btn');
+  const btn2 = document.getElementById('tab-toggle-list-btn');
+  if (btn1) btn1.textContent = '✕ Liste schließen';
+  if (btn2) btn2.textContent = '✕ Liste schließen';
+}
+
+function hideScenarioList() {
+  document.getElementById('col-scenario-list').style.display = 'none';
+  document.getElementById('tab-scenario-list').style.display = 'none';
+  const btn1 = document.getElementById('col-toggle-list-btn');
+  const btn2 = document.getElementById('tab-toggle-list-btn');
+  if (btn1) btn1.textContent = '📋 Szenario wählen';
+  if (btn2) btn2.textContent = '📋 Szenario wählen';
+}
+
+function showScenario(s) {
+  currentScenario = s;
+  const schoolLabels = { BK: 'Berufskolleg', GS: 'Grundschule', SEK: 'Sek I & II', FS: 'Förderschule', ZfsL: 'ZfsL / Lehrkräfteausbildung' };
+  const html = `
+    <span class="scenario-badge">${schoolLabels[currentSchool] || currentSchool}</span>
+    <div class="scenario-title">${s.title}</div>
+    <div class="situation-label">Ausgangssituation</div>
+    <div class="situation-text">${s.situation}</div>
+    <div class="task-toggle" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.arrow').textContent = this.nextElementSibling.classList.contains('hidden') ? '▶' : '▼'">
+      <span class="arrow">▶</span> Aufgabe anzeigen
+    </div>
+    <div class="task-text hidden">${s.task}</div>
+  `;
+  setInnerHTML('col-scenario-display', html);
+  setInnerHTML('tab-scenario-display', html);
+  document.getElementById('col-scenario-display').classList.remove('hidden');
+  document.getElementById('tab-scenario-display').classList.remove('hidden');
+
+  // Update list highlights
+  if (listVisible) renderScenarioList();
+  else hideScenarioList();
+
+  // Hide "no school" message
+  setDisplay('col-no-school', false);
+  setDisplay('tab-no-school', false);
+}
+
+/* ===================================================
+   PROMPT EDITOR
+=================================================== */
+function onPromptInput(prefix) {
+  // Auto-save after 1s of inactivity
+  clearTimeout(window['saveTimer_' + prefix]);
+  window['saveTimer_' + prefix] = setTimeout(() => {
+    savePrompt(prefix, true);
+  }, 1000);
+}
+
+function copyPrompt(prefix) {
+  const ta = document.getElementById(prefix + '-prompt');
+  if (!ta || !ta.value.trim()) { showToast('Prompt ist leer.'); return; }
+  navigator.clipboard.writeText(ta.value).then(() => showToast('Prompt kopiert!'));
+}
+
+function resetPrompt(prefix) {
+  if (!confirm('Prompt wirklich zurücksetzen?')) return;
+  document.getElementById(prefix + '-prompt').value = '';
+  localStorage.removeItem('prompt_' + prefix);
+  updateSaveIndicator(prefix, '');
+}
+
+function savePrompt(prefix, auto = false) {
+  const val = document.getElementById(prefix + '-prompt').value;
+  localStorage.setItem('prompt_' + prefix, val);
+  updateSaveIndicator(prefix, auto ? 'Automatisch gespeichert' : 'Gespeichert ✓');
+  if (!auto) showToast('Prompt gespeichert!');
+}
+
+function updateSaveIndicator(prefix, msg) {
+  const el = document.getElementById(prefix + '-save-indicator');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.toggle('saved', msg.includes('espeichert'));
+}
+
+function loadSaved() {
+  ['col', 'tab'].forEach(prefix => {
+    const saved = localStorage.getItem('prompt_' + prefix);
+    if (saved) {
+      const ta = document.getElementById(prefix + '-prompt');
+      if (ta) {
+        ta.value = saved;
+        updateSaveIndicator(prefix, 'Gespeicherter Prompt geladen');
+      }
+    }
+  });
+}
+
+/* ===================================================
+   LAYOUT TOGGLE
+=================================================== */
+function setLayout(mode) {
+  currentLayout = mode;
+  document.body.classList.remove('col-mode', 'tab-mode');
+  document.body.classList.add(mode + '-mode');
+  document.getElementById('btn-col').classList.toggle('btn-active', mode === 'col');
+  document.getElementById('btn-col').classList.toggle('btn-secondary', mode !== 'col');
+  document.getElementById('btn-tab').classList.toggle('btn-active', mode === 'tab');
+  document.getElementById('btn-tab').classList.toggle('btn-secondary', mode !== 'tab');
+}
+
+/* ===================================================
+   TABS
+=================================================== */
+function switchTab(paneId, btn) {
+  document.querySelectorAll('#tab-layout-root .tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#tab-layout-root .tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(paneId).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ===================================================
+   TOAST
+=================================================== */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ===================================================
+   HELPERS
+=================================================== */
+function setDisplay(id, visible, addHidden = false) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (addHidden) {
+    el.classList.add('hidden');
+  } else {
+    if (visible) el.style.display = '';
+    else el.style.display = 'none';
+  }
+}
+
+function setInnerHTML(id, html) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = html;
+}
+</script>
+</body>
+</html>
