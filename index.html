@@ -215,6 +215,35 @@
     header { padding: .75rem 1rem; }
     .container { padding: .75rem; }
   }
+
+  /* Role badge */
+  .role-badge {
+    display: inline-block; font-size: .68rem; font-weight: 600;
+    padding: .18rem .55rem; border-radius: 4px; margin-left: .4rem;
+    vertical-align: middle; text-transform: uppercase; letter-spacing: .04em;
+  }
+  .role-Lehrperson          { background: #d4edda; color: #155724; }
+  .role-Schulleitung        { background: #e2d9f3; color: #4a235a; }
+  .role-Schueler            { background: #fde8cc; color: #7c3d00; }
+  .role-LAA                 { background: #cce5ff; color: #004085; }
+  .role-SAB                 { background: #d1ecf1; color: #0c5460; }
+  .role-Leitung             { background: #f8d7da; color: #721c24; }
+  .role-Mixed               { background: #e2e3e5; color: #383d41; }
+  /* Role filter chips */
+  .role-filter { display: none; flex-wrap: wrap; gap: .4rem; margin-top: .6rem; }
+  .role-filter.visible { display: flex; }
+  .role-chip {
+    padding: .25rem .65rem; border: 1.5px solid #dee2e6; border-radius: 20px;
+    background: #fff; font-size: .78rem; cursor: pointer;
+    transition: all .15s; font-weight: 500; color: #495057;
+  }
+  .role-chip:hover { border-color: #4361ee; color: #4361ee; }
+  .role-chip.active { background: #4361ee; color: #fff; border-color: #4361ee; }
+  .scenario-item .role-tag {
+    display: inline-block; font-size: .68rem; padding: .1rem .35rem;
+    border-radius: 3px; margin-left: .3rem; font-weight: 600; vertical-align: middle;
+    opacity: .85;
+  }
 </style>
 </head>
 <body class="col-mode">
@@ -251,6 +280,10 @@
       <button class="school-btn" data-school="SEK"  onclick="selectSchool('SEK')">Sek I &amp; II</button>
       <button class="school-btn" data-school="FS"   onclick="selectSchool('FS')">Förderschule</button>
       <button class="school-btn" data-school="ZfsL" onclick="selectSchool('ZfsL')">ZfsL / Lehrkräfteausbildung</button>
+    </div>
+    <div class="role-filter" id="role-filter">
+      <span style="font-size:.72rem;color:#6c757d;font-weight:700;align-self:center;">Rolle:</span>
+      <button class="role-chip active" data-role="all" onclick="filterRole('all', this)">Alle</button>
     </div>
   </div>
 
@@ -364,85 +397,85 @@ const SCHOOL_LABELS = { BK:"Berufskolleg", GS:"Grundschule", SEK:"Sek I & II", F
 const SCENARIOS = {
 
 BK:[
-  {id:1,  title:"Szenario 1 – Fallstudien BWL",             situation:"Sie unterrichten in der 11. Klasse des Beruflichen Gymnasiums Betriebswirtschaftslehre mit Rechnungswesen und möchten den Schülerinnen und Schülern Fallstudien zur Vertragsanalyse anbieten. Sie suchen Hilfe bei der Erstellung realistischer Fälle und Lösungsvorschläge."},
-  {id:2,  title:"Szenario 2 – Digitale Schlüsselkompetenzen",situation:"Als Schulleiterin an einem großen Berufsbildungszentrum liegt Ihnen die Förderung digitaler Schlüsselkompetenzen am Herzen. Teile des Kollegiums zeigen Widerstände gegenüber Digitalisierungsprozessen – einige haben sich noch nie auf der Lernplattform eingeloggt. Statt zu mahnen, wollen Sie motivierend den Mehrwert von Digitalität vermitteln, haben aber keine zündende Idee."},
-  {id:3,  title:"Szenario 3 – Aktienhandel & Investment",    situation:"Sie sind Schüler einer 12. Klasse im beruflichen Gymnasium, Fachbereich Wirtschaft und Verwaltung, und möchten Ihr Verständnis für Aktienhandel verbessern. Die KI soll virtuelle Investmentportfolios erstellen und Einblicke in Finanzmärkte gewähren."},
-  {id:4,  title:"Szenario 4 – Java Binnendifferenzierung",   situation:"Sie sind Lehrerin einer Klasse von IT-Fachinformatikern. Ein Großteil der Lerngruppe hat Verständnisprobleme mit Java, ein Teil langweilt sich wegen deutlich mehr Vorwissen. Sie suchen Möglichkeiten der Binnendifferenzierung."},
-  {id:5,  title:"Szenario 5 – 3D-Drucker Antrag",           situation:"Sie sind Schulleiter an einem Berufskolleg für Gestaltung. Die Abteilungsleiterin möchte mehrere 3D-Drucker anschaffen – durch den Rahmenlehrplan legitimiert. Die Kassen der Kommune sind leer und Sie benötigen Unterstützung bei der Antragstellung."},
-  {id:6,  title:"Szenario 6 – Portfolio Mediengestaltung",   situation:"Als Schüler in einer Mediengestalter-Mittelstufe möchten Sie Ihr Portfolio erstellen. Die KI hilft bei der Gestaltung von Grafikprojekten und bietet kreative Ideen für Designs."},
-  {id:7,  title:"Szenario 7 – Werbekampagnen",              situation:"Sie sind Lehrerin im Fach Gestaltungstechnik in einer Klasse von Gestaltungstechnischen Assistenten (Anlage C) und möchten, dass Ihre Lerngruppe innovative Werbekampagnen entwickelt. Die KI soll kreative Ansätze und Zielgruppenanalyse-Methoden vorschlagen."},
-  {id:8,  title:"Szenario 8 – Schülerschaft & Anwohner",    situation:"Als Schulleiter eines BKs in bester Wohnlage sehen Sie sich immer wieder mit Beschwerden über Ihre Schülerschaft konfrontiert. Sie suchen Lösungen, um die beidseitige Akzeptanz zu erhöhen."},
-  {id:9,  title:"Szenario 9 – Gesunde Rezepte",             situation:"Sie sind Schüler in der Berufsfachschule 1, Ernährung und Versorgung, und möchten im Fach Produktion gesunde Rezepte entwickeln. Sie benötigen Rezeptvorschläge und Nährwertanalysen."},
-  {id:10, title:"Szenario 10 – Team-Teaching Klärung",      situation:"Sie unterrichten im Team-Teaching Mathematik in einer Ausbildungsvorbereitungsklasse. Bislang haben ausschließlich Sie den Unterricht geplant und dem Kollegen zaghaft signalisiert, dass auch er verantwortlich ist. Sie suchen Rat, wie man das höflich ansprechen kann."},
-  {id:11, title:"Szenario 11 – Schwieriges Mitarbeitergespräch", situation:"Als Schulleiter steht Ihnen ein schwieriges Mitarbeitergespräch mit einem Kollegen bevor, der mit Ihrer Exfrau verheiratet ist. Sie sehen bei ihm kaum Einsatz, befürchten aber, dass er mit Ihrer Eifersucht argumentieren wird. Sie suchen Unterstützung bei der Erstellung eines Gesprächsleitfadens."},
-  {id:12, title:"Szenario 12 – Medizinische Diagnoseverfahren", situation:"Als Schülerin in der Berufsfachschule 2, Gesundheit und Soziales (Schwerpunkt Sport/Gesundheitsförderung), möchten Sie Ihre Kenntnisse über medizinische Diagnoseverfahren erweitern und Übungsfälle sowie Diagnosehilfen generieren."},
-  {id:13, title:"Szenario 13 – Nachhaltige Projekte",       situation:"Sie sind Lehrer in der Ausbildungsvorbereitung Ernährung und Versorgung und möchten, dass Ihre Klasse nachhaltige Projekte durchführt. Sie suchen innovative Projektideen zu grünen Technologien."},
-  {id:14, title:"Szenario 14 – Alternative Prüfungsformate BK", situation:"Sie sind eine progressive Schulleiterin an einem Berufskolleg mit mehrfachen Gesprächen mit KI-skeptischen Lehrkräften. Sie wollen nicht restriktiv vorgehen und setzen auf alternative Prüfungsformate. Sie benötigen eine Handreichung für das Kollegium – von Hause aus unterrichten Sie Sport und Religion."},
-  {id:15, title:"Szenario 15 – Markteintritt AAL",          situation:"Sie sind angehender Industriekaufmann und sollen im Auftrag der Geschäftsleitung eine Markteintrittstrategie für einen sensorgesteuerten Senioren-Assistenten (Ambient-Assistant Living) entwickeln."},
-  {id:16, title:"Szenario 16 – Englisch Friseurhandwerk",   situation:"Sie unterrichten Englisch bei Auszubildenden im Friseurhandwerk und möchten Schülerinnen und Schülern unterschiedlicher Lernniveaus helfen, Geschäftskorrespondenz auf Englisch zu verfassen."},
-  {id:17, title:"Szenario 17 – Qualitätsanalyse am BK",     situation:"Sie sind Schulleiterin eines Berufskollegs, an welchem sich die QA angemeldet hat. Im Kollegium herrscht schlechte Stimmung. Leitbild, Medienkonzept und Didaktische Jahresplanung wurden nie fertiggestellt. Sie benötigen Unterstützung bei der Vorbereitung."},
-  {id:18, title:"Szenario 18 – Robotikprojekt",             situation:"Sie sind Mechatronikerin im 3. Ausbildungsjahr und möchten ein Robotikprojekt durchführen. Die KI soll Technikberatung und Programmierhilfe für Roboterkonstruktionen bieten."},
-  {id:19, title:"Szenario 19 – Reihenplanung Bauzeichner",  situation:"Für Bauzeichner ist im dritten Ausbildungsjahr Lernfeld 14(A), Planung eines Stahlbetonwerks, vorgesehen. Sie unterrichten das Lernfeld erstmalig und benötigen eine Reihenplanung für 60 Unterrichtsstunden."},
-  {id:20, title:"Szenario 20 – Fusion zweier Berufskollegs",situation:"Sie leiten ein Berufskolleg mit den Schwerpunkten Technik sowie Wirtschaft und Verwaltung. Ihnen steht eine Fusion mit einem kleineren BK für Gestaltung und Gesundheit bevor. Sie möchten, dass Klassen und Kollegium diese Veränderung konstruktiv gestalten."},
-  {id:21, title:"Szenario 21 – Gästebetreuung Hotel",       situation:"Sie sind angehende Kauffrau im Hotelmanagement (3. Ausbildungsjahr) und möchten eine innovative Gästebetreuungsstrategie entwickeln. Sie suchen Ideen für personalisierte Gästeerlebnisse."},
-  {id:22, title:"Szenario 22 – Lagerlogistik motivieren",   situation:"Sie unterrichten Lagerlogistik in einer wenig motivierten Klasse von Fachlageristinnen und Fachlageristen im ersten Ausbildungsjahr und suchen kreative und motivierende Möglichkeiten zur Vermittlung effizienter Lagerhaltung."},
-  {id:23, title:"Szenario 23 – Hackathon mit Unternehmen",  situation:"Als Schulleiter möchten Sie die Zusammenarbeit mit regionalen Unternehmen stärken. Nach einem besuchten Hackathon würden Sie gerne ein solches Event in Ihrer Schule durchführen, wissen aber nicht, wie man das konzipiert und organisiert."},
-  {id:24, title:"Szenario 24 – CAD-Design Metallbau",       situation:"Als angehende Metallbauerin (2. Ausbildungsjahr) möchten Sie effiziente Konstruktionslösungen entwickeln. Die KI soll Unterstützung bei CAD-Designs bieten und technisch beraten."},
-  {id:25, title:"Szenario 25 – Konflikte Religionsunterricht", situation:"Sie unterrichten Religion in einer FOS 11 Technik. Immer wieder kommt es zu Konflikten aufgrund diskriminierender Äußerungen, die auch schon in Handgreiflichkeiten endeten. Sie benötigen Unterstützung bei Prävention und Konfliktbewältigung."},
-  {id:26, title:"Szenario 26 – Trans & Nonbinäre Schülerschaft", situation:"Sie leiten ein Berufskolleg mit sehr heterogener Schülerschaft. Bei den letzten Anmeldungen gab ein beträchtlicher Anteil an, transgender oder nonbinär zu sein. Sie möchten die Schule sensibel und inklusiv aufstellen."},
-  {id:27, title:"Szenario 27 – Stromkreis Elektrotechnik",  situation:"Als Schüler in der Ausbildungsvorbereitung im Bereich Elektrotechnik haben Sie Probleme, einen intelligenten Stromkreis zu bauen. Sie suchen einfache Erklärungen für Schaltungsdesigns und eine Fehlerdiagnose."},
-  {id:28, title:"Szenario 28 – Antrag Freizeitpark",        situation:"Sie sind Klassenlehrer einer BFS-Klasse und möchten mit Ihrer Klasse in einen Freizeitpark fahren. Die Schulleitung hat Ihren Antrag abgelehnt. Sie benötigen Anregungen zur Neuformulierung mit schlüssiger Begründung."},
-  {id:29, title:"Szenario 29 – Raumkonzept agile Methoden", situation:"Sie sind Schulleiterin an einem BK und möchten ein Raumkonzept entwickeln, das agile Methoden unterstützt. Sie benötigen Ideen zur Raumgestaltung unter Berücksichtigung des Brandschutzes."},
-  {id:30, title:"Szenario 30 – Eventkonzepte",              situation:"Sie sind angehender Veranstaltungskaufmann (1. Ausbildungsjahr) und sollen im Fach Eventmanagement Veranstaltungskonzepte entwerfen. Die KI bietet Ideen für Eventthemen und Organisationshilfe."}
+  {id:1, role:'Lehrperson',  title:"Szenario 1 – Fallstudien BWL",             situation:"Sie unterrichten in der 11. Klasse des Beruflichen Gymnasiums Betriebswirtschaftslehre mit Rechnungswesen und möchten den Schülerinnen und Schülern Fallstudien zur Vertragsanalyse anbieten. Sie suchen Hilfe bei der Erstellung realistischer Fälle und Lösungsvorschläge."},
+  {id:2, role:'Schulleitung',  title:"Szenario 2 – Digitale Schlüsselkompetenzen",situation:"Als Schulleiterin an einem großen Berufsbildungszentrum liegt Ihnen die Förderung digitaler Schlüsselkompetenzen am Herzen. Teile des Kollegiums zeigen Widerstände gegenüber Digitalisierungsprozessen – einige haben sich noch nie auf der Lernplattform eingeloggt. Statt zu mahnen, wollen Sie motivierend den Mehrwert von Digitalität vermitteln, haben aber keine zündende Idee."},
+  {id:3, role:'Schüler:in',  title:"Szenario 3 – Aktienhandel & Investment",    situation:"Sie sind Schüler einer 12. Klasse im beruflichen Gymnasium, Fachbereich Wirtschaft und Verwaltung, und möchten Ihr Verständnis für Aktienhandel verbessern. Die KI soll virtuelle Investmentportfolios erstellen und Einblicke in Finanzmärkte gewähren."},
+  {id:4, role:'Lehrperson',  title:"Szenario 4 – Java Binnendifferenzierung",   situation:"Sie sind Lehrerin einer Klasse von IT-Fachinformatikern. Ein Großteil der Lerngruppe hat Verständnisprobleme mit Java, ein Teil langweilt sich wegen deutlich mehr Vorwissen. Sie suchen Möglichkeiten der Binnendifferenzierung."},
+  {id:5, role:'Schulleitung',  title:"Szenario 5 – 3D-Drucker Antrag",           situation:"Sie sind Schulleiter an einem Berufskolleg für Gestaltung. Die Abteilungsleiterin möchte mehrere 3D-Drucker anschaffen – durch den Rahmenlehrplan legitimiert. Die Kassen der Kommune sind leer und Sie benötigen Unterstützung bei der Antragstellung."},
+  {id:6, role:'Schüler:in',  title:"Szenario 6 – Portfolio Mediengestaltung",   situation:"Als Schüler in einer Mediengestalter-Mittelstufe möchten Sie Ihr Portfolio erstellen. Die KI hilft bei der Gestaltung von Grafikprojekten und bietet kreative Ideen für Designs."},
+  {id:7, role:'Lehrperson',  title:"Szenario 7 – Werbekampagnen",              situation:"Sie sind Lehrerin im Fach Gestaltungstechnik in einer Klasse von Gestaltungstechnischen Assistenten (Anlage C) und möchten, dass Ihre Lerngruppe innovative Werbekampagnen entwickelt. Die KI soll kreative Ansätze und Zielgruppenanalyse-Methoden vorschlagen."},
+  {id:8, role:'Schulleitung',  title:"Szenario 8 – Schülerschaft & Anwohner",    situation:"Als Schulleiter eines BKs in bester Wohnlage sehen Sie sich immer wieder mit Beschwerden über Ihre Schülerschaft konfrontiert. Sie suchen Lösungen, um die beidseitige Akzeptanz zu erhöhen."},
+  {id:9, role:'Schüler:in',  title:"Szenario 9 – Gesunde Rezepte",             situation:"Sie sind Schüler in der Berufsfachschule 1, Ernährung und Versorgung, und möchten im Fach Produktion gesunde Rezepte entwickeln. Sie benötigen Rezeptvorschläge und Nährwertanalysen."},
+  {id:10, role:'Lehrperson', title:"Szenario 10 – Team-Teaching Klärung",      situation:"Sie unterrichten im Team-Teaching Mathematik in einer Ausbildungsvorbereitungsklasse. Bislang haben ausschließlich Sie den Unterricht geplant und dem Kollegen zaghaft signalisiert, dass auch er verantwortlich ist. Sie suchen Rat, wie man das höflich ansprechen kann."},
+  {id:11, role:'Schulleitung', title:"Szenario 11 – Schwieriges Mitarbeitergespräch", situation:"Als Schulleiter steht Ihnen ein schwieriges Mitarbeitergespräch mit einem Kollegen bevor, der mit Ihrer Exfrau verheiratet ist. Sie sehen bei ihm kaum Einsatz, befürchten aber, dass er mit Ihrer Eifersucht argumentieren wird. Sie suchen Unterstützung bei der Erstellung eines Gesprächsleitfadens."},
+  {id:12, role:'Schüler:in', title:"Szenario 12 – Medizinische Diagnoseverfahren", situation:"Als Schülerin in der Berufsfachschule 2, Gesundheit und Soziales (Schwerpunkt Sport/Gesundheitsförderung), möchten Sie Ihre Kenntnisse über medizinische Diagnoseverfahren erweitern und Übungsfälle sowie Diagnosehilfen generieren."},
+  {id:13, role:'Lehrperson', title:"Szenario 13 – Nachhaltige Projekte",       situation:"Sie sind Lehrer in der Ausbildungsvorbereitung Ernährung und Versorgung und möchten, dass Ihre Klasse nachhaltige Projekte durchführt. Sie suchen innovative Projektideen zu grünen Technologien."},
+  {id:14, role:'Schulleitung', title:"Szenario 14 – Alternative Prüfungsformate BK", situation:"Sie sind eine progressive Schulleiterin an einem Berufskolleg mit mehrfachen Gesprächen mit KI-skeptischen Lehrkräften. Sie wollen nicht restriktiv vorgehen und setzen auf alternative Prüfungsformate. Sie benötigen eine Handreichung für das Kollegium – von Hause aus unterrichten Sie Sport und Religion."},
+  {id:15, role:'Schüler:in', title:"Szenario 15 – Markteintritt AAL",          situation:"Sie sind angehender Industriekaufmann und sollen im Auftrag der Geschäftsleitung eine Markteintrittstrategie für einen sensorgesteuerten Senioren-Assistenten (Ambient-Assistant Living) entwickeln."},
+  {id:16, role:'Lehrperson', title:"Szenario 16 – Englisch Friseurhandwerk",   situation:"Sie unterrichten Englisch bei Auszubildenden im Friseurhandwerk und möchten Schülerinnen und Schülern unterschiedlicher Lernniveaus helfen, Geschäftskorrespondenz auf Englisch zu verfassen."},
+  {id:17, role:'Schulleitung', title:"Szenario 17 – Qualitätsanalyse am BK",     situation:"Sie sind Schulleiterin eines Berufskollegs, an welchem sich die QA angemeldet hat. Im Kollegium herrscht schlechte Stimmung. Leitbild, Medienkonzept und Didaktische Jahresplanung wurden nie fertiggestellt. Sie benötigen Unterstützung bei der Vorbereitung."},
+  {id:18, role:'Schüler:in', title:"Szenario 18 – Robotikprojekt",             situation:"Sie sind Mechatronikerin im 3. Ausbildungsjahr und möchten ein Robotikprojekt durchführen. Die KI soll Technikberatung und Programmierhilfe für Roboterkonstruktionen bieten."},
+  {id:19, role:'Lehrperson', title:"Szenario 19 – Reihenplanung Bauzeichner",  situation:"Für Bauzeichner ist im dritten Ausbildungsjahr Lernfeld 14(A), Planung eines Stahlbetonwerks, vorgesehen. Sie unterrichten das Lernfeld erstmalig und benötigen eine Reihenplanung für 60 Unterrichtsstunden."},
+  {id:20, role:'Schulleitung', title:"Szenario 20 – Fusion zweier Berufskollegs",situation:"Sie leiten ein Berufskolleg mit den Schwerpunkten Technik sowie Wirtschaft und Verwaltung. Ihnen steht eine Fusion mit einem kleineren BK für Gestaltung und Gesundheit bevor. Sie möchten, dass Klassen und Kollegium diese Veränderung konstruktiv gestalten."},
+  {id:21, role:'Schüler:in', title:"Szenario 21 – Gästebetreuung Hotel",       situation:"Sie sind angehende Kauffrau im Hotelmanagement (3. Ausbildungsjahr) und möchten eine innovative Gästebetreuungsstrategie entwickeln. Sie suchen Ideen für personalisierte Gästeerlebnisse."},
+  {id:22, role:'Lehrperson', title:"Szenario 22 – Lagerlogistik motivieren",   situation:"Sie unterrichten Lagerlogistik in einer wenig motivierten Klasse von Fachlageristinnen und Fachlageristen im ersten Ausbildungsjahr und suchen kreative und motivierende Möglichkeiten zur Vermittlung effizienter Lagerhaltung."},
+  {id:23, role:'Schulleitung', title:"Szenario 23 – Hackathon mit Unternehmen",  situation:"Als Schulleiter möchten Sie die Zusammenarbeit mit regionalen Unternehmen stärken. Nach einem besuchten Hackathon würden Sie gerne ein solches Event in Ihrer Schule durchführen, wissen aber nicht, wie man das konzipiert und organisiert."},
+  {id:24, role:'Schüler:in', title:"Szenario 24 – CAD-Design Metallbau",       situation:"Als angehende Metallbauerin (2. Ausbildungsjahr) möchten Sie effiziente Konstruktionslösungen entwickeln. Die KI soll Unterstützung bei CAD-Designs bieten und technisch beraten."},
+  {id:25, role:'Lehrperson', title:"Szenario 25 – Konflikte Religionsunterricht", situation:"Sie unterrichten Religion in einer FOS 11 Technik. Immer wieder kommt es zu Konflikten aufgrund diskriminierender Äußerungen, die auch schon in Handgreiflichkeiten endeten. Sie benötigen Unterstützung bei Prävention und Konfliktbewältigung."},
+  {id:26, role:'Schulleitung', title:"Szenario 26 – Trans & Nonbinäre Schülerschaft", situation:"Sie leiten ein Berufskolleg mit sehr heterogener Schülerschaft. Bei den letzten Anmeldungen gab ein beträchtlicher Anteil an, transgender oder nonbinär zu sein. Sie möchten die Schule sensibel und inklusiv aufstellen."},
+  {id:27, role:'Schüler:in', title:"Szenario 27 – Stromkreis Elektrotechnik",  situation:"Als Schüler in der Ausbildungsvorbereitung im Bereich Elektrotechnik haben Sie Probleme, einen intelligenten Stromkreis zu bauen. Sie suchen einfache Erklärungen für Schaltungsdesigns und eine Fehlerdiagnose."},
+  {id:28, role:'Lehrperson', title:"Szenario 28 – Antrag Freizeitpark",        situation:"Sie sind Klassenlehrer einer BFS-Klasse und möchten mit Ihrer Klasse in einen Freizeitpark fahren. Die Schulleitung hat Ihren Antrag abgelehnt. Sie benötigen Anregungen zur Neuformulierung mit schlüssiger Begründung."},
+  {id:29, role:'Schulleitung', title:"Szenario 29 – Raumkonzept agile Methoden", situation:"Sie sind Schulleiterin an einem BK und möchten ein Raumkonzept entwickeln, das agile Methoden unterstützt. Sie benötigen Ideen zur Raumgestaltung unter Berücksichtigung des Brandschutzes."},
+  {id:30, role:'Schüler:in', title:"Szenario 30 – Eventkonzepte",              situation:"Sie sind angehender Veranstaltungskaufmann (1. Ausbildungsjahr) und sollen im Fach Eventmanagement Veranstaltungskonzepte entwerfen. Die KI bietet Ideen für Eventthemen und Organisationshilfe."}
 ],
 
 GS:[
-  {id:1, title:"Szenario 1 – Schreibaufgaben Deutsch",    situation:"Sie unterrichten Deutsch in der 2. Klasse und möchten den Lernenden helfen, das Schreiben von Geschichten unter Berücksichtigung von Schreibkriterien anzubahnen. Die KI unterstützt Sie bei der Entwicklung kreativer Schreibaufgaben und liefert Vorschläge für Merkmale eines guten Textaufbaus."},
-  {id:2, title:"Szenario 2 – Tablet-Konzept",            situation:"Als Schulleitung möchten Sie ein Konzept für den Einsatz von Tablets im Unterricht entwickeln. Sie benötigen Ideen für verschiedene Fächer und Klassenstufen, Anknüpfungspunkte an den Medienkompetenzrahmen und Vorschläge zur Auswahl DSGVO-konformer Apps."},
-  {id:3, title:"Szenario 3 – Mathe Textaufgaben",        situation:"Du bist in der 3. Klasse und hast Schwierigkeiten beim Verständnis von Textaufgaben in Mathematik. Du bittest die KI, dir Erklärungen, Übungen und Lernspiele zum Thema zu erstellen."},
-  {id:4, title:"Szenario 4 – Pflanzenwachstum",          situation:"Um die Arbeit einer Schülerin in der 4. Klasse beim Thema Pflanzenwachstum im Sachunterricht zu unterstützen, nehmen Sie eine KI zu Hilfe. Sie recherchieren Informationen und erstellen eine Auflistung der verschiedenen Stadien des Wachstums einer Pflanze."},
-  {id:5, title:"Szenario 5 – Elternbrief Verkehrschaos", situation:"Sie sind Schulleiterin einer Grundschule in der Innenstadt. Vor Schulbeginn herrscht vor Ihrer Schule Verkehrschaos. Eltern blockieren den Busparkplatz und es gab bereits Handgreiflichkeiten. Sie möchten mithilfe einer KI eine Einladung zu einem Infoabend formulieren."},
-  {id:6, title:"Szenario 6 – Theaterstück",              situation:"Du bist in der 4. Klasse und möchtest ein Theaterstück aufführen. Du weißt nicht, wie ein Theaterstück aufgebaut ist, und brauchst eine einfache Erklärung von der KI sowie Vorschläge für das Stück und die Rollen."},
-  {id:7, title:"Szenario 7 – Notenlehre",                situation:"Sie sind Musiklehrer an einer Grundschule und möchten zum Thema Notenlehre eine Unterrichtsreihe erstellen. Die KI hilft Ihnen, das Lesen und Schreiben grafischer und traditioneller Notationen als Spielhilfe zielgerichtet zu entwickeln."},
-  {id:8, title:"Szenario 8 – Einschulungsbrief",         situation:"Sie schreiben als Schulleitung eine Einladung zur Einschulung an die Erziehungsberechtigten. Die KI unterstützt Sie bei der Verfassung von klaren, verständlichen Briefen in einfacher Sprache zum Thema Einschulungsverfahren."},
-  {id:9, title:"Szenario 9 – Freundschaftskonflikt",     situation:"Du bist in der 3. Klasse. Deine beste Freundin hat deinen Lieblingsstift genommen – du hast ihn in ihrem Mäppchen gesehen, aber sie leugnet es. Du möchtest weder die Freundschaft verlieren noch auf den Stift verzichten. Die KI soll dir helfen, deine Gedanken in Worte zu fassen."}
+  {id:1, role:'Lehrperson', title:"Szenario 1 – Schreibaufgaben Deutsch",    situation:"Sie unterrichten Deutsch in der 2. Klasse und möchten den Lernenden helfen, das Schreiben von Geschichten unter Berücksichtigung von Schreibkriterien anzubahnen. Die KI unterstützt Sie bei der Entwicklung kreativer Schreibaufgaben und liefert Vorschläge für Merkmale eines guten Textaufbaus."},
+  {id:2, role:'Schulleitung', title:"Szenario 2 – Tablet-Konzept",            situation:"Als Schulleitung möchten Sie ein Konzept für den Einsatz von Tablets im Unterricht entwickeln. Sie benötigen Ideen für verschiedene Fächer und Klassenstufen, Anknüpfungspunkte an den Medienkompetenzrahmen und Vorschläge zur Auswahl DSGVO-konformer Apps."},
+  {id:3, role:'Schüler:in', title:"Szenario 3 – Mathe Textaufgaben",        situation:"Du bist in der 3. Klasse und hast Schwierigkeiten beim Verständnis von Textaufgaben in Mathematik. Du bittest die KI, dir Erklärungen, Übungen und Lernspiele zum Thema zu erstellen."},
+  {id:4, role:'Lehrperson', title:"Szenario 4 – Pflanzenwachstum",          situation:"Um die Arbeit einer Schülerin in der 4. Klasse beim Thema Pflanzenwachstum im Sachunterricht zu unterstützen, nehmen Sie eine KI zu Hilfe. Sie recherchieren Informationen und erstellen eine Auflistung der verschiedenen Stadien des Wachstums einer Pflanze."},
+  {id:5, role:'Schulleitung', title:"Szenario 5 – Elternbrief Verkehrschaos", situation:"Sie sind Schulleiterin einer Grundschule in der Innenstadt. Vor Schulbeginn herrscht vor Ihrer Schule Verkehrschaos. Eltern blockieren den Busparkplatz und es gab bereits Handgreiflichkeiten. Sie möchten mithilfe einer KI eine Einladung zu einem Infoabend formulieren."},
+  {id:6, role:'Schüler:in', title:"Szenario 6 – Theaterstück",              situation:"Du bist in der 4. Klasse und möchtest ein Theaterstück aufführen. Du weißt nicht, wie ein Theaterstück aufgebaut ist, und brauchst eine einfache Erklärung von der KI sowie Vorschläge für das Stück und die Rollen."},
+  {id:7, role:'Lehrperson', title:"Szenario 7 – Notenlehre",                situation:"Sie sind Musiklehrer an einer Grundschule und möchten zum Thema Notenlehre eine Unterrichtsreihe erstellen. Die KI hilft Ihnen, das Lesen und Schreiben grafischer und traditioneller Notationen als Spielhilfe zielgerichtet zu entwickeln."},
+  {id:8, role:'Schulleitung', title:"Szenario 8 – Einschulungsbrief",         situation:"Sie schreiben als Schulleitung eine Einladung zur Einschulung an die Erziehungsberechtigten. Die KI unterstützt Sie bei der Verfassung von klaren, verständlichen Briefen in einfacher Sprache zum Thema Einschulungsverfahren."},
+  {id:9, role:'Schüler:in', title:"Szenario 9 – Freundschaftskonflikt",     situation:"Du bist in der 3. Klasse. Deine beste Freundin hat deinen Lieblingsstift genommen – du hast ihn in ihrem Mäppchen gesehen, aber sie leugnet es. Du möchtest weder die Freundschaft verlieren noch auf den Stift verzichten. Die KI soll dir helfen, deine Gedanken in Worte zu fassen."}
 ],
 
 SEK:[
-  {id:1, title:"Szenario 1 – Prüfungsformate Geschichte",      situation:"Sie sind Geschichtslehrer an einer Realschule und möchten innovative Prüfungsformate für das Thema Zeitalter der Industrialisierung entwickeln. Die KI listet kreative Prüfungsmethoden auf, um das historische Verständnis der Schüler zu fördern."},
-  {id:2, title:"Szenario 2 – Handreichung Prüfungsformate",    situation:"Sie sind progressive Schulleiterin an einer Realschule mit mehrfachen Gesprächen mit KI-skeptischen Lehrkräften. Sie setzen auf alternative Prüfungsformate und möchten eine Handreichung für Ihr Kollegium erstellen."},
-  {id:3, title:"Szenario 3 – Biologie Genetik Diagnose",       situation:"Sie sind Schülerin in der Klasse 12 und haben Schwierigkeiten in Biologie. Sie haben Ihre Lösungen der letzten Klassenarbeit zum Thema Genetik eingegeben und die KI aufgefordert, Ihre Schwächen zu diagnostizieren und gezielt Übungsmaterial zu generieren."},
-  {id:4, title:"Szenario 4 – Chemie Binnendifferenzierung",    situation:"Sie unterrichten Chemie an einer Hauptschule und möchten binnendifferenzierte Materialien für das Thema Elemente und ihre Ordnung erstellen. Die KI soll Übungen und Erklärungen für unterschiedliche Leistungsstufen anpassen."},
-  {id:5, title:"Szenario 5 – Elternkommunikation Gesamtschule",situation:"Sie sind Schulleiter an einer Gesamtschule und suchen nach Wegen, die Kommunikation mit Eltern zu verbessern. Die KI hilft bei der Verfassung klarer Elternbriefe und E-Mails in einfacher Sprache, z.B. zum Thema Elternabend."},
-  {id:6, title:"Szenario 6 – Periodensystem Differenzierung",  situation:"Sie unterrichten Chemie an einer Hauptschule und möchten binnendifferenzierte Materialien zum Periodensystem der Elemente erstellen. Die KI soll Übungen und Erklärungen für verschiedene Leistungsniveaus anpassen."},
-  {id:7, title:"Szenario 7 – Musikkomposition LMS-Kurs",       situation:"Sie unterrichten Musik an einer Gesamtschule und möchten kreative LMS-Kurse zum Thema Musikkomposition erstellen. Die KI unterstützt bei der Gestaltung interaktiver Lernmodule und schlägt innovative Unterrichtsmethoden vor."},
-  {id:8, title:"Szenario 8 – Digitalität im Kollegium",        situation:"Als Schulleiterin an einer Realschule liegt Ihnen Digitalität sehr am Herzen. Teile des Kollegiums zeigen Widerstände – einige haben sich noch nie auf der Lernplattform eingeloggt. Statt zu mahnen, wollen Sie motivierend den Mehrwert vermitteln."},
-  {id:9, title:"Szenario 9 – Demokratie & Bürgerrechte",       situation:"Du bist Schülerin in der 7. Klasse einer Hauptschule und hast in Politik das Thema Demokratie und Bürgerrechte. Du findest das Thema langweilig und würdest lieber einen Bestimmer haben. Deine Lehrerin möchte, dass du überlegst, was das bedeuten würde."}
+  {id:1, role:'Lehrperson', title:"Szenario 1 – Prüfungsformate Geschichte",      situation:"Sie sind Geschichtslehrer an einer Realschule und möchten innovative Prüfungsformate für das Thema Zeitalter der Industrialisierung entwickeln. Die KI listet kreative Prüfungsmethoden auf, um das historische Verständnis der Schüler zu fördern."},
+  {id:2, role:'Schulleitung', title:"Szenario 2 – Handreichung Prüfungsformate",    situation:"Sie sind progressive Schulleiterin an einer Realschule mit mehrfachen Gesprächen mit KI-skeptischen Lehrkräften. Sie setzen auf alternative Prüfungsformate und möchten eine Handreichung für Ihr Kollegium erstellen."},
+  {id:3, role:'Schüler:in', title:"Szenario 3 – Biologie Genetik Diagnose",       situation:"Sie sind Schülerin in der Klasse 12 und haben Schwierigkeiten in Biologie. Sie haben Ihre Lösungen der letzten Klassenarbeit zum Thema Genetik eingegeben und die KI aufgefordert, Ihre Schwächen zu diagnostizieren und gezielt Übungsmaterial zu generieren."},
+  {id:4, role:'Lehrperson', title:"Szenario 4 – Chemie Binnendifferenzierung",    situation:"Sie unterrichten Chemie an einer Hauptschule und möchten binnendifferenzierte Materialien für das Thema Elemente und ihre Ordnung erstellen. Die KI soll Übungen und Erklärungen für unterschiedliche Leistungsstufen anpassen."},
+  {id:5, role:'Schulleitung', title:"Szenario 5 – Elternkommunikation Gesamtschule",situation:"Sie sind Schulleiter an einer Gesamtschule und suchen nach Wegen, die Kommunikation mit Eltern zu verbessern. Die KI hilft bei der Verfassung klarer Elternbriefe und E-Mails in einfacher Sprache, z.B. zum Thema Elternabend."},
+  {id:6, role:'Schüler:in', title:"Szenario 6 – Periodensystem Differenzierung",  situation:"Sie unterrichten Chemie an einer Hauptschule und möchten binnendifferenzierte Materialien zum Periodensystem der Elemente erstellen. Die KI soll Übungen und Erklärungen für verschiedene Leistungsniveaus anpassen."},
+  {id:7, role:'Lehrperson', title:"Szenario 7 – Musikkomposition LMS-Kurs",       situation:"Sie unterrichten Musik an einer Gesamtschule und möchten kreative LMS-Kurse zum Thema Musikkomposition erstellen. Die KI unterstützt bei der Gestaltung interaktiver Lernmodule und schlägt innovative Unterrichtsmethoden vor."},
+  {id:8, role:'Schulleitung', title:"Szenario 8 – Digitalität im Kollegium",        situation:"Als Schulleiterin an einer Realschule liegt Ihnen Digitalität sehr am Herzen. Teile des Kollegiums zeigen Widerstände – einige haben sich noch nie auf der Lernplattform eingeloggt. Statt zu mahnen, wollen Sie motivierend den Mehrwert vermitteln."},
+  {id:9, role:'Schüler:in', title:"Szenario 9 – Demokratie & Bürgerrechte",       situation:"Du bist Schülerin in der 7. Klasse einer Hauptschule und hast in Politik das Thema Demokratie und Bürgerrechte. Du findest das Thema langweilig und würdest lieber einen Bestimmer haben. Deine Lehrerin möchte, dass du überlegst, was das bedeuten würde."}
 ],
 
 FS:[
-  {id:1, title:"Szenario 1 – Mathe Textaufgaben inklusiv",   situation:"Sie sind Lehrkraft und möchten Textaufgaben für den Mathematikunterricht erstellen. In Ihrer Klasse befinden sich zwei Kinder mit Sprachentwicklungsstörung im Bereich Sprachverständnis sowie zwei Kinder mit Lernbeeinträchtigung. Sie suchen eine sprachlich reduzierte Version der regulären Aufgaben."},
-  {id:2, title:"Szenario 2 – Schulträger Ausstattung",       situation:"Sie sind Schulleiterin an einer Förderschule mit zwei Standorten. Bei der Kommunikation mit dem Schulträger über Ausstattung bleiben viele Antworten offen: kein flächendeckendes WLAN, fehlende Dienstgeräte, keine Tablet-Koffer. Sie bereiten sich auf ein klärendes Gespräch vor."},
-  {id:3, title:"Szenario 3 – Geschichte zu Bildern",         situation:"Du bist in der 8. Klasse einer Förderschule und es fällt dir schwer, eigene Texte zu verfassen. Heute darfst du eine KI als Werkzeug benutzen. Du hast Bilder für eine Geschichte gestaltet und möchtest mit der KI eine passende Geschichte dazu schreiben lassen."},
-  {id:4, title:"Szenario 4 – Einfache Sprache Klassenarbeit",situation:"Sie sind Lehrkraft im Gemeinsamen Lernen einer Gesamtschule. Sie möchten Aufgabenstellungen von einer KI in einfacher und klarer Sprache erstellen lassen, um sie einigen Ihrer Schülerinnen und Schüler anbieten zu können."},
-  {id:5, title:"Szenario 5 – Zeitungsartikel Lärm",          situation:"Sie sind Schulleiterin an einer Förderschule. Anwohner beschweren sich über die Lautstärke der Lernenden und die Verkehrssituation am Morgen. Sie möchten mit KI einen Artikel für die regionale Zeitung verfassen, der um besondere Vorsicht bittet."},
-  {id:6, title:"Szenario 6 – Bewerbung überarbeiten",        situation:"In Klasse 9 habt ihr Bewerbungen geschrieben. Du bekommst deine Arbeit mit Anmerkungen zu Grammatik und Ausdruck zurück. Es ist erlaubt, eine KI zur Überarbeitung zu nutzen. Da dir die Lehrerin wiederholt die gleichen Fehler angestrichen hat, möchtest du von der KI dazu Übungen erstellen lassen."},
-  {id:7, title:"Szenario 7 – Innerer Monolog Tschick",       situation:"Sie lesen mit Ihrer 7. Klasse das Buch Tschick. Eine Aufgabe ist ein innerer Monolog zu einer Figur. Sie möchten jenen, die keine langen Texte selbst verfassen können, eine KI zur Verfügung stellen und dazu eine einfache, klare Aufgabenstellung formulieren."},
-  {id:8, title:"Szenario 8 – Infoabend Verkehr SGE",         situation:"Sie sind Schulleiterin einer Schule für Geistige Entwicklung. Vor Schulbeginn herrscht Verkehrschaos: Busparkplätze reichen nicht aus, Anwohner parken auf dem Schulgelände. Sie laden zu einem Infoabend ein und suchen konstruktive Formulierungen mit KI-Hilfe."},
-  {id:9, title:"Szenario 9 – Vom Korn zum Brot",             situation:"Du bist Schülerin in der 6. Klasse einer Förderschule und sollst eine Präsentation zum Thema Vom Korn zum Brot halten. Du hast eine Erklärung verfasst, bist aber unsicher. Die KI soll die Rolle einer Mitschülerin einnehmen und Rückfragen stellen."}
+  {id:1, role:'Lehrperson', title:"Szenario 1 – Mathe Textaufgaben inklusiv",   situation:"Sie sind Lehrkraft und möchten Textaufgaben für den Mathematikunterricht erstellen. In Ihrer Klasse befinden sich zwei Kinder mit Sprachentwicklungsstörung im Bereich Sprachverständnis sowie zwei Kinder mit Lernbeeinträchtigung. Sie suchen eine sprachlich reduzierte Version der regulären Aufgaben."},
+  {id:2, role:'Schulleitung', title:"Szenario 2 – Schulträger Ausstattung",       situation:"Sie sind Schulleiterin an einer Förderschule mit zwei Standorten. Bei der Kommunikation mit dem Schulträger über Ausstattung bleiben viele Antworten offen: kein flächendeckendes WLAN, fehlende Dienstgeräte, keine Tablet-Koffer. Sie bereiten sich auf ein klärendes Gespräch vor."},
+  {id:3, role:'Schüler:in', title:"Szenario 3 – Geschichte zu Bildern",         situation:"Du bist in der 8. Klasse einer Förderschule und es fällt dir schwer, eigene Texte zu verfassen. Heute darfst du eine KI als Werkzeug benutzen. Du hast Bilder für eine Geschichte gestaltet und möchtest mit der KI eine passende Geschichte dazu schreiben lassen."},
+  {id:4, role:'Lehrperson', title:"Szenario 4 – Einfache Sprache Klassenarbeit",situation:"Sie sind Lehrkraft im Gemeinsamen Lernen einer Gesamtschule. Sie möchten Aufgabenstellungen von einer KI in einfacher und klarer Sprache erstellen lassen, um sie einigen Ihrer Schülerinnen und Schüler anbieten zu können."},
+  {id:5, role:'Schulleitung', title:"Szenario 5 – Zeitungsartikel Lärm",          situation:"Sie sind Schulleiterin an einer Förderschule. Anwohner beschweren sich über die Lautstärke der Lernenden und die Verkehrssituation am Morgen. Sie möchten mit KI einen Artikel für die regionale Zeitung verfassen, der um besondere Vorsicht bittet."},
+  {id:6, role:'Schüler:in', title:"Szenario 6 – Bewerbung überarbeiten",        situation:"In Klasse 9 habt ihr Bewerbungen geschrieben. Du bekommst deine Arbeit mit Anmerkungen zu Grammatik und Ausdruck zurück. Es ist erlaubt, eine KI zur Überarbeitung zu nutzen. Da dir die Lehrerin wiederholt die gleichen Fehler angestrichen hat, möchtest du von der KI dazu Übungen erstellen lassen."},
+  {id:7, role:'Lehrperson', title:"Szenario 7 – Innerer Monolog Tschick",       situation:"Sie lesen mit Ihrer 7. Klasse das Buch Tschick. Eine Aufgabe ist ein innerer Monolog zu einer Figur. Sie möchten jenen, die keine langen Texte selbst verfassen können, eine KI zur Verfügung stellen und dazu eine einfache, klare Aufgabenstellung formulieren."},
+  {id:8, role:'Schulleitung', title:"Szenario 8 – Infoabend Verkehr SGE",         situation:"Sie sind Schulleiterin einer Schule für Geistige Entwicklung. Vor Schulbeginn herrscht Verkehrschaos: Busparkplätze reichen nicht aus, Anwohner parken auf dem Schulgelände. Sie laden zu einem Infoabend ein und suchen konstruktive Formulierungen mit KI-Hilfe."},
+  {id:9, role:'Schüler:in', title:"Szenario 9 – Vom Korn zum Brot",             situation:"Du bist Schülerin in der 6. Klasse einer Förderschule und sollst eine Präsentation zum Thema Vom Korn zum Brot halten. Du hast eine Erklärung verfasst, bist aber unsicher. Die KI soll die Rolle einer Mitschülerin einnehmen und Rückfragen stellen."}
 ],
 
 ZfsL:[
-  {id:1,  title:"Szenario 1 – Differenzierte Aufgaben",         situation:"Für eine Unterrichtsstunde im Fach X zum Thema Y für eine 8. Klasse mit unterschiedlichen Lernniveaus werden differenzierte Aufgaben auf drei Kompetenzniveaus benötigt. Die Einschätzung des Leistungsstandes soll auf Kompetenzerwartungen und Bildungsstandards basieren."},
-  {id:2,  title:"Szenario 2 – Fallbeschreibungen Heterogenität", situation:"Für Themen wie Heterogenität oder Inklusion werden Fallbeschreibungen zur Veranschaulichung benötigt. In den Fallbeschreibungen sollen Kinder und Jugendliche mit besonderen Begabungen oder Beeinträchtigungen und ihren speziellen Bedürfnissen charakterisiert werden."},
-  {id:3,  title:"Szenario 3 – Kollegiale Fallberatung",         situation:"Als Kernseminarleiterin haben Sie den Auftrag, Ihre Seminargruppe mit der kollegialen Fallberatung vertraut zu machen. Die LAA sollen diese Beratungsmethode nach einer Einführung eigenständig nutzen. Sie kennen verschiedene Varianten mit unterschiedlichen Rollen."},
-  {id:4,  title:"Szenario 4 – Handlungsfeld Beraten",           situation:"Sie sind Seminarleiterin in einem ZfsL und wollen, dass Ihre SAB sich auf einer Dienstbesprechung über Kompetenzen im Handlungsfeld Beraten in der digitalisierten Welt austauschen, um dieses Handlungsfeld in der Lehrkräfteausbildung zu stärken."},
-  {id:5,  title:"Szenario 5 – Unterrichtseinheiten entwickeln", situation:"Sie haben den Anspruch, ansprechende und pädagogisch wertvolle Unterrichtseinheiten zu entwickeln. Mit einem KI-System möchten Sie verschiedene Ansätze zur Behandlung eines Themas diskutieren und Vorschläge für methodische Variationen erhalten."},
-  {id:6,  title:"Szenario 6 – Material erstellen",              situation:"Sie wollen passendes Material für Ihre Lerngruppe erstellen. Nutzen Sie ein KI-System, um sich Übungsaufgaben, Quizfragen, Projektideen oder Arbeitsblätter generieren zu lassen – auch auf Basis ausgewählter Texte."},
-  {id:7,  title:"Szenario 7 – Feedback zur Stunde",             situation:"Sie hätten gerne von Ihrer Lerngruppe Feedback zur letzten Unterrichtsstunde. Sie möchten zur Klarheit der Erklärungen, zur Nützlichkeit der Materialien und zur allgemeinen Zufriedenheit passende Fragen entwickeln – mit Unterstützung eines KI-Systems."},
-  {id:8,  title:"Szenario 8 – Agile Methoden im Unterricht",    situation:"Sie sind LAA im Seminar HRSGe oder GyGe und haben den Auftrag, agile Methoden im Unterricht einer 10. Klasse zu erproben und Ihre Erfahrungen im Fachseminar vorzustellen. Die KI soll bei der Auswahl und Einführung passender Methoden helfen."},
-  {id:9,  title:"Szenario 9 – Unterrichtsentwurf Klafki",       situation:"Sie haben bereits einen Unterrichtsentwurf erstellt und die didaktische Analyse anhand der fünf Kernfragen Klafkis erarbeitet. Sie möchten Ihre Planung von einem KI-System analysieren lassen, um zu prüfen, ob die Kernfragen vollständig beantwortet wurden."},
-  {id:10, title:"Szenario 10 – Elterngespräch Kriterien",       situation:"Sie sind SAB und möchten Ihren LAA Kriterien für ein gelingendes Elterngespräch vermitteln. Ein KI-System soll als Ideengeber für gute Gesprächskriterien dienen und dazu eine Präsentation erstellen."}
+  {id:1, role:'Lehramtsanwärter:in',  title:"Szenario 1 – Differenzierte Aufgaben",         situation:"Für eine Unterrichtsstunde im Fach X zum Thema Y für eine 8. Klasse mit unterschiedlichen Lernniveaus werden differenzierte Aufgaben auf drei Kompetenzniveaus benötigt. Die Einschätzung des Leistungsstandes soll auf Kompetenzerwartungen und Bildungsstandards basieren."},
+  {id:2, role:'Seminarausbilder:in',  title:"Szenario 2 – Fallbeschreibungen Heterogenität", situation:"Für Themen wie Heterogenität oder Inklusion werden Fallbeschreibungen zur Veranschaulichung benötigt. In den Fallbeschreibungen sollen Kinder und Jugendliche mit besonderen Begabungen oder Beeinträchtigungen und ihren speziellen Bedürfnissen charakterisiert werden."},
+  {id:3, role:'Seminarausbilder:in Kernseminar',  title:"Szenario 3 – Kollegiale Fallberatung",         situation:"Als Kernseminarleiterin haben Sie den Auftrag, Ihre Seminargruppe mit der kollegialen Fallberatung vertraut zu machen. Die LAA sollen diese Beratungsmethode nach einer Einführung eigenständig nutzen. Sie kennen verschiedene Varianten mit unterschiedlichen Rollen."},
+  {id:4, role:'Seminardirektor:in (Leitung)',  title:"Szenario 4 – Handlungsfeld Beraten",           situation:"Sie sind Seminarleiterin in einem ZfsL und wollen, dass Ihre SAB sich auf einer Dienstbesprechung über Kompetenzen im Handlungsfeld Beraten in der digitalisierten Welt austauschen, um dieses Handlungsfeld in der Lehrkräfteausbildung zu stärken."},
+  {id:5, role:'Lehramtsanwärter:in',  title:"Szenario 5 – Unterrichtseinheiten entwickeln", situation:"Sie haben den Anspruch, ansprechende und pädagogisch wertvolle Unterrichtseinheiten zu entwickeln. Mit einem KI-System möchten Sie verschiedene Ansätze zur Behandlung eines Themas diskutieren und Vorschläge für methodische Variationen erhalten."},
+  {id:6, role:'Lehramtsanwärter:in',  title:"Szenario 6 – Material erstellen",              situation:"Sie wollen passendes Material für Ihre Lerngruppe erstellen. Nutzen Sie ein KI-System, um sich Übungsaufgaben, Quizfragen, Projektideen oder Arbeitsblätter generieren zu lassen – auch auf Basis ausgewählter Texte."},
+  {id:7, role:'Lehramtsanwärter:in',  title:"Szenario 7 – Feedback zur Stunde",             situation:"Sie hätten gerne von Ihrer Lerngruppe Feedback zur letzten Unterrichtsstunde. Sie möchten zur Klarheit der Erklärungen, zur Nützlichkeit der Materialien und zur allgemeinen Zufriedenheit passende Fragen entwickeln – mit Unterstützung eines KI-Systems."},
+  {id:8, role:'Lehramtsanwärter:in',  title:"Szenario 8 – Agile Methoden im Unterricht",    situation:"Sie sind LAA im Seminar HRSGe oder GyGe und haben den Auftrag, agile Methoden im Unterricht einer 10. Klasse zu erproben und Ihre Erfahrungen im Fachseminar vorzustellen. Die KI soll bei der Auswahl und Einführung passender Methoden helfen."},
+  {id:9, role:'Lehramtsanwärter:in',  title:"Szenario 9 – Unterrichtsentwurf Klafki",       situation:"Sie haben bereits einen Unterrichtsentwurf erstellt und die didaktische Analyse anhand der fünf Kernfragen Klafkis erarbeitet. Sie möchten Ihre Planung von einem KI-System analysieren lassen, um zu prüfen, ob die Kernfragen vollständig beantwortet wurden."},
+  {id:10, role:'Seminarausbilder:in', title:"Szenario 10 – Elterngespräch Kriterien",       situation:"Sie sind SAB und möchten Ihren LAA Kriterien für ein gelingendes Elterngespräch vermitteln. Ein KI-System soll als Ideengeber für gute Gesprächskriterien dienen und dazu eine Präsentation erstellen."}
 ]
 
 };
@@ -453,6 +486,7 @@ ZfsL:[
 let currentSchool = null;
 let currentScenarioIdx = null;
 let listOpen = { col: false, tab: false };
+let currentRoleFilter = 'all';
 
 /* ============================================================
    INIT
@@ -506,7 +540,36 @@ function selectSchool(school) {
     if (btn) btn.style.display = 'inline-flex';
   });
 
+  // Rollenfilter zurücksetzen und aktualisieren
+  currentRoleFilter = 'all';
+  updateRoleFilter();
   // Anzeige zurücksetzen
+  refreshScenarioUI('col');
+  refreshScenarioUI('tab');
+}
+
+function updateRoleFilter() {
+  const filterEl = document.getElementById('role-filter');
+  if (!filterEl) return;
+  if (!currentSchool) { filterEl.classList.remove('visible'); return; }
+  const roles = [...new Set(SCENARIOS[currentSchool].map(s => s.role).filter(Boolean))];
+  const allBtn = `<span style="font-size:.72rem;color:#6c757d;font-weight:700;align-self:center;margin-right:.2rem">Rolle:</span>
+    <button class="role-chip active" data-role="all" onclick="filterRole('all',this)">Alle</button>`;
+  const roleBtns = roles.map(r =>
+    `<button class="role-chip" data-role="${r}" onclick="filterRole('${r}',this)">${r}</button>`
+  ).join('');
+  filterEl.innerHTML = allBtn + roleBtns;
+  filterEl.classList.add('visible');
+}
+
+function filterRole(role, btn) {
+  currentRoleFilter = role;
+  document.querySelectorAll('#role-filter .role-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (currentScenarioIdx !== null && role !== 'all') {
+    const s = SCENARIOS[currentSchool][currentScenarioIdx];
+    if (s.role !== role) currentScenarioIdx = null;
+  }
   refreshScenarioUI('col');
   refreshScenarioUI('tab');
 }
@@ -551,9 +614,15 @@ function refreshScenarioUI(prefix) {
 function renderList(prefix) {
   const list = document.getElementById(prefix + '-list');
   if (!list || !currentSchool) return;
-  list.innerHTML = SCENARIOS[currentSchool].map((s, idx) =>
-    `<div class="scenario-item${currentScenarioIdx === idx ? ' active' : ''}"
-          onclick="pickScenario(${idx})">${s.title}</div>`
+  const filtered = currentRoleFilter === 'all'
+    ? SCENARIOS[currentSchool].map((s,i) => ({s,i}))
+    : SCENARIOS[currentSchool].map((s,i) => ({s,i})).filter(({s}) => s.role === currentRoleFilter);
+  list.innerHTML = filtered.map(({s, i}) =>
+    `<div class="scenario-item${currentScenarioIdx === i ? ' active' : ''}"
+          onclick="pickScenario(${i})">
+      ${s.title}
+      ${s.role ? `<span class="role-tag ${roleClass(s.role)}" style="background:var(--rc,#eee);color:var(--rt,#333)">${s.role}</span>` : ''}
+    </div>`
   ).join('');
 }
 
@@ -580,8 +649,12 @@ function pickScenario(idx) {
 
 function randomScenario() {
   if (!currentSchool) { showToast('Bitte zuerst eine Schulform wählen.'); return; }
-  const idx = Math.floor(Math.random() * SCENARIOS[currentSchool].length);
-  pickScenario(idx);
+  const pool = SCENARIOS[currentSchool]
+    .map((s,i) => ({s,i}))
+    .filter(({s}) => currentRoleFilter === 'all' || s.role === currentRoleFilter);
+  if (!pool.length) { showToast('Keine Szenarien für diese Rolle.'); return; }
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  pickScenario(pick.i);
 }
 
 /* ============================================================
@@ -592,12 +665,24 @@ function renderScenarioDisplay(prefix) {
   if (!el || currentScenarioIdx === null || !currentSchool) return;
   const s = SCENARIOS[currentSchool][currentScenarioIdx];
   el.innerHTML =
-    `<span class="badge">${SCHOOL_LABELS[currentSchool]}</span>
-     <div class="scenario-title">${s.title}</div>
+    `<span class="badge">${SCHOOL_LABELS[currentSchool]}</span>` +
+    (s.role ? `<span class="role-badge ${roleClass(s.role)}">${s.role}</span>` : '') +
+    `<div class="scenario-title" style="margin-top:.5rem">${s.title}</div>
      <div class="section-label">Ausgangssituation</div>
      <div class="situation-text">${s.situation}</div>
      <div class="task-toggle" onclick="toggleTask(this)">▶ Aufgabe anzeigen</div>
      <div class="task-text">${TASK}</div>`;
+}
+
+function roleClass(role) {
+  if (!role) return '';
+  if (role === 'Lehrperson') return 'role-Lehrperson';
+  if (role === 'Schulleitung') return 'role-Leitung';
+  if (role.startsWith('Schüler')) return 'role-Schueler';
+  if (role.startsWith('Lehramtsanw')) return 'role-LAA';
+  if (role.startsWith('Seminarausbilder') && !role.includes('oder')) return 'role-SAB';
+  if (role.includes('Leitung') || role.includes('Direktor')) return 'role-Leitung';
+  return 'role-Mixed';
 }
 
 function toggleTask(toggleEl) {
